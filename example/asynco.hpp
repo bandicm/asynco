@@ -1,30 +1,32 @@
 #ifndef _ASYNCO_
 #define _ASYNCO_
 
-#include "loop.hpp"
+#include <vector>
+#include <mutex>
+#include <future>
+#include <thread>
 
 using namespace std;
 
 namespace marcelb {
 
-#ifndef ON_ASYNC
-#define ON_ASYNC
-AsyncLoop on_async;
-#endif
-
 class interval;
 class timeout;
 
 class loop_core {
-   static vector<interval> intervals;
-   static vector<timeout> timeouts;
+    vector<interval> intervals;
+    vector<timeout> timeouts;
     time_t sampling;
     mutex i_m, t_m;
+    future<void> bot;
 
     loop_core() {
-        on_async.put_task( [this] () {
+        bot = async(launch::async, [this] () {
             loop();
         });
+        // on_async.put_task( [this] () {
+        //     loop();
+        // });
     }
 
     void run(interval& _interval)  {
@@ -60,7 +62,7 @@ class loop_core {
                     _timeout.callback();
                 }
             }
-            sleep_for(chrono::milliseconds(sampling));
+            this_thread::sleep_for(chrono::milliseconds(sampling));
         }
     }
 
@@ -156,19 +158,6 @@ class timeout {
     }
 };
 
-
-template<class F, class... Args>
-auto asynco(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
-    using return_type = typename result_of<F(Args...)>::type;
-
-    future<return_type> res = on_async.put_task(bind(forward<F>(f), forward<Args>(args)...));
-    return res;
-}
-
-template<typename T>
-T wait(future<T> r) {
-    return r.get();
-}
 
 }
 

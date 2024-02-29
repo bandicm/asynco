@@ -1,7 +1,8 @@
 
-#include "../lib/loop.hpp"
-#include "../lib/asynco.hpp"
-// #include "../lib/event.hpp"
+// #include "../lib/loop.hpp"
+// #include "../lib/asynco.hpp"
+// #include "../example/asynco.hpp"
+#include "../lib/event.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -11,37 +12,37 @@ using namespace this_thread;
 
 #ifndef ON_ASYNC
 #define ON_ASYNC
-AsyncLoop on_async;
+AsyncLoop on_async(8);
 #endif
 
 int main () {
 
-    auto start = chrono::high_resolution_clock::now();
+    // auto start = chrono::high_resolution_clock::now();
 
-    interval inter1 ([&]() {
-        cout << "interval prvi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-    }, 1000);
+    // interval inter1 ([&]() {
+    //     cout << "interval prvi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    // }, 1000);
 
-    cout << "Blokira stoka" << endl;
+    // interval inter2 ([&]() {
+    //     cout << "interval drugi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    // }, 2000);
 
-    interval inter2 ([&]() {
-        cout << "interval drugi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-    }, 2000);
+    // interval inter3 ([&]() {
+    //     cout << "interval treći " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    // }, 3000);
 
-    interval inter3 ([&]() {
-        cout << "interval treći " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-    }, 3000);
+    // timeout time1 ( [&] () {
+    //     cout << "Close interval 1 i 2 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     inter1.clear();
+    //     inter2.clear();
+    // }, 10000);
 
-    timeout time1 ( [&] () {
-        cout << "Close interval 1 i 2 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-        inter1.clear();
-        inter2.clear();
-    }, 10000);
+    // timeout time2 ([&] () {
+    //     cout << "Close interval 3 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     inter3.clear();
+    // }, 2000);
 
-    timeout time2 ([&] () {
-        cout << "Close interval 3 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-        inter3.clear();
-    }, 20000);
+    // cout << "zadataka: " << on_async.count_tasks() << " niti: " << on_async.count_threads() << endl;
 
 
     //  for (int i = 0; i < 8; ++i) {
@@ -87,15 +88,24 @@ int main () {
 
     // cout << wait(run1) << endl;
 
-    // event dog;
+    // event<int, int> ev2int;
+    // event<int, string> evintString;
 
-    // dog.on("roge", [](int a, int b) {
-    //     cout << "Rogeee" << a << b << endl;
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum " << a+b << endl;
+    // });
+
+    // evintString.on("substract", [](int a, string b) {
+    //     cout << "Substract " << a-stoi(b) << endl;
     // });
 
     // sleep(5);
 
-    // dog.emit("roge", 5, 8);
+    // ev2int.emit("sum", 5, 8);
+
+    // sleep(2);
+    // evintString.emit("substract", 3, to_string(2));
+
 
     sleep(1000);
 

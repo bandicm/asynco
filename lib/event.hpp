@@ -5,34 +5,38 @@
 #include <map>
 #include <string>
 #include <functional>
+#include "loop.hpp"
 
 using namespace std;
 
 namespace marcelb {
 
+#ifndef ON_ASYNC
+#define ON_ASYNC
+AsyncLoop on_async;
+#endif
+
+
+template<typename... T>
 class event {
-    map<string, function<void(const tuple<>&)>> events;
-public:
+    private:
+    unordered_map<string, function<void(T...)>> events;
 
-    template <typename... Args>
-    void on(const string& key, function<void(Args...)> f) {
-        // events[key] = [f](Args... args) {
-        //     f(args...);
-        // };
+    public:
+    void on(const string& key, function<void(T...)> callback) {
+        events[key] = callback;
     }
 
-    template <typename... Args>
-    void emit(const string& key, Args&&... args) {
-        if (events.find(key) == events.end()) {
-            cout << "No defined listener for event: " << key << endl;
-            return;
-        }
-        else {
-            for (auto& func : events[key]) {
-                func(forward<Args>(args)...);
-            }
+    template<typename... Args>
+    void emit(const string& key, Args... args) {
+        auto it = events.find(key);
+        if (it != events.end()) {
+            auto callback = bind(it->second, forward<Args>(args)...);
+            on_async.put_task(callback);
         }
     }
+
+
 };
 
 }

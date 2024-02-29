@@ -80,8 +80,9 @@ class AsyncLoop {
             stop = true;
         }
         cv.notify_all();
-        for (thread& worker : workers)
+        for (thread& worker : workers) {
             worker.join();
+        }
     }
 
 };
