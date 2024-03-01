@@ -1,8 +1,9 @@
 
-// #include "../lib/loop.hpp"
-// #include "../lib/asynco.hpp"
-// #include "../example/asynco.hpp"
+#include "../lib/runner.hpp"
+#include "../lib/asynco.hpp"
 #include "../lib/event.hpp"
+#include "../lib/rotor.hpp"
+
 #include <iostream>
 #include <unistd.h>
 
@@ -10,49 +11,85 @@ using namespace std;
 using namespace marcelb;
 using namespace this_thread;
 
-#ifndef ON_ASYNC
-#define ON_ASYNC
-AsyncLoop on_async(8);
+#ifndef ON_RUNNER
+#define ON_RUNNER
+runner on_async;
 #endif
+
+
+void sleep_to (int _time) {
+    promise<void> _promise;
+    timeout t( [&]() {
+        _promise.set_value();
+    }, _time);
+
+    return _promise.get_future().get();
+}
+
+void promise_reject (int _time) {
+    promise<void> _promise;
+    timeout t( [&]() {
+        try {
+            // simulate except
+            throw runtime_error("Error simulation");
+            _promise.set_value();
+        } catch (...) {
+            _promise.set_exception(current_exception());
+        }
+    }, _time);
+
+    return _promise.get_future().get();
+}
+
+// ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
+
+class myOwnClass : public event<int> {
+    public:
+    myOwnClass() : event() {};
+};
+
 
 int main () {
 
-    // auto start = chrono::high_resolution_clock::now();
+    auto start = rtime_ms();
+
+    // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
+
+    /**
+     * Init interval and timeout; clear interval and timeout
+    */
 
     // interval inter1 ([&]() {
-    //     cout << "interval prvi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     cout << "interval prvi " << rtime_ms() - start << endl;
     // }, 1000);
 
     // interval inter2 ([&]() {
-    //     cout << "interval drugi " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     cout << "interval drugi " << rtime_ms() - start << endl;
     // }, 2000);
 
     // interval inter3 ([&]() {
-    //     cout << "interval treći " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     cout << "interval treći " << rtime_ms() - start << endl;
     // }, 3000);
 
     // timeout time1 ( [&] () {
-    //     cout << "Close interval 1 i 2 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
     //     inter1.clear();
     //     inter2.clear();
     // }, 10000);
 
     // timeout time2 ([&] () {
-    //     cout << "Close interval 3 " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+    //     cout << "Close interval 3 " << rtime_ms() - start << endl;
     //     inter3.clear();
+    //     time1.clear();
     // }, 2000);
 
-    // cout << "zadataka: " << on_async.count_tasks() << " niti: " << on_async.count_threads() << endl;
+    // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
+    /**
+     * Put task directly and get returned value - it is not recommended to use it
+    */
 
-    //  for (int i = 0; i < 8; ++i) {
-    //     pool.put_task( [&] (int id) {
-    //         this_thread::sleep_for(chrono::seconds(1));
-    //         cout << a*i << endl;
-    //     }, i);
-    // }
-
-    // auto res1 = pool.put_task( [] () {
+    // auto res1 = on_async.put_task( [] () {
     //     cout << "Jebiga " <<endl;
     //     throw string ("jebiga!!");
     // });
@@ -63,33 +100,80 @@ int main () {
     //     cout << except << endl;
     // }
 
-    // auto res = pool.put_task( []() {
-    //     this_thread::sleep_for(chrono::seconds(1));
-    //     return 4;
-    // });
-
-    // cout << wait(asynco( [] () {
-    //     sleep_for(chrono::seconds(1));
-    //     cout << "RETURN" << endl;
-    //     return 4;
-    // })) << endl;
+    /**
+     * Run an function asyncronic
+    */
 
     // asynco( []() {
-    //     sleep_for(2s);
-    //     cout << "RETURN 2" << endl;
+    //     sleep_for(2s);   // only for simulate log duration function
+    //     cout << "asynco" << endl;
     //     return 5;
     // });
 
-    // cout << wait(pool.put_task( []() {
-    //     this_thread::sleep_for(chrono::seconds(1));
-    //     return 7;
-    // })); 
+
+    /**
+     * Wait after runned as async
+     */
+
+    // auto a = asynco( []() {
+    //     sleep_for(2s);   // only for simulate log duration function
+    //     cout << "asynco" << endl;
+    //     return 5;
+    // });
+
+    // cout << wait(move(a)) << endl;
+
+    /**
+     * Wait async function call and use i cout
+    */
+
+    // cout << wait(asynco( [] () {
+    //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
+    //     cout << "wait end" << endl;
+    //     return 4;
+    // })) << endl;
+
+    /**
+     * Sleep with timeout sleep implement
+    */
+
+    // sleep_to(3000);
+    // cout << "sleep_to " << rtime_ms() - start << endl;
+
+    /**
+     * Catch promise reject
+    */
+
+    // try {
+    //     promise_reject(3000);
+    // } catch (runtime_error err) {
+    //     cout<< err.what() << endl;
+    // }
+
+    // cout << "promise_reject " << rtime_ms() - start << endl;
 
 
-    // cout << wait(run1) << endl;
+    /**
+     * Nested asynchronous invocation
+    */
+
+
+    // asynco( [] {
+    //     cout << "idemo ..." << endl;
+    //     asynco( [] {
+    //         cout << "ugdnježdena async funkcija " << endl;
+    //     });
+    // });
+
+    // --------------- EVENTS -------------------
+
+    /**
+     * initialization of typed events
+    */
 
     // event<int, int> ev2int;
     // event<int, string> evintString;
+    // event<> evoid;
 
     // ev2int.on("sum", [](int a, int b) {
     //     cout << "Sum " << a+b << endl;
@@ -99,15 +183,39 @@ int main () {
     //     cout << "Substract " << a-stoi(b) << endl;
     // });
 
-    // sleep(5);
+    // evoid.on("void", []() {
+    //     cout << "Void emited" << endl;
+    // });
+
+    // sleep(1);
+
+    /**
+     * Emit
+    */
 
     // ev2int.emit("sum", 5, 8);
 
-    // sleep(2);
+    // sleep(1);
     // evintString.emit("substract", 3, to_string(2));
 
+    // sleep(1);
+    // evoid.emit("void");
 
-    sleep(1000);
+    /**
+     * Own class 
+    */
+
+    // myOwnClass myclass;
+
+    // timeout t( [&] {
+    //     myclass.emit("constructed", 1);
+    // }, 200);
+
+    // myclass.on("constructed", [] (int i) {
+    //     cout << "Constructed " << i  << endl;
+    // });
+
+    sleep(10000); // only for testing
 
     return 0;
 }

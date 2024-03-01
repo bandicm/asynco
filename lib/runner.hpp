@@ -1,5 +1,5 @@
-#ifndef _LOOP_
-#define _LOOP_
+#ifndef _RUNNER_
+#define _RUNNER_
 
 #include <thread>
 #include <vector>
@@ -13,22 +13,31 @@ using namespace std;
 
 namespace marcelb {
 
-#ifdef ON_ASYNC
-extern AsyncLoop on_async;
+#ifdef ON_RUNNER
+extern runner on_async;
 #endif
 
-class AsyncLoop {
+/**
+ * The runner class implements multithread, task stack and event loop for asynchronous execution of tasks
+*/
+class runner {
     private:
-    vector<thread> workers;
+    vector<thread> runners;
     queue<function<void()>> tasks;
     mutex q_io;
     condition_variable cv;
     bool stop;
 
     public:
-    AsyncLoop(size_t pool_size = thread::hardware_concurrency()) : stop(false) {
+
+    /**
+     * The constructor starts as many threads as the system has cores, 
+     * and runs an event loop inside each one. 
+     * Each event loop waits for tasks from the stack and executes them.
+    */
+    runner(size_t pool_size = thread::hardware_concurrency()) : stop(false) {
         for (size_t i = 0; i < pool_size; ++i) {
-            workers.emplace_back([this] {
+            runners.emplace_back( thread([this] {
                 while (true) {
                     function<void()> task;
                     {
@@ -41,10 +50,13 @@ class AsyncLoop {
                     }
                     task();
                 }
-            });
+            }));
         }
     }
 
+    /**
+     * With the method, we send the callback function and its arguments to the task stack
+    */
     template<class F, class... Args>
     auto put_task(F&& f, Args&&... args)
         -> future<typename result_of<F(Args...)>::type> {
@@ -66,22 +78,31 @@ class AsyncLoop {
         return res;
     }
 
+    /**
+     * Returns the number of tasks the runner has to perform
+    */
     unsigned int count_tasks() {
         return tasks.size();
     }
 
+    /**
+     * Returns the number of threads used by the runner
+    */
     unsigned int count_threads() {
-        return workers.size();
+        return runners.size();
     }
 
-    ~AsyncLoop() {
+    /**
+     * The destructor stops all loops and stops all threads
+    */
+    ~runner() {
         {
             unique_lock<mutex> lock(q_io);
             stop = true;
         }
         cv.notify_all();
-        for (thread& worker : workers) {
-            worker.join();
+        for (thread& runner : runners) {
+            runner.join();
         }
     }
 
