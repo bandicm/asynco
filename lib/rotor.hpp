@@ -89,12 +89,17 @@ class rotor {
     void remove(const int& position) {
         lock_guard<mutex> lock(te_m);
         tevents.erase(tevents.begin()+position);
+        update_sampling();
     }
 
     /**
      * Updates the idle time of the loop, according to twice the frequency of available events
     */
     void update_sampling() {
+        if (tevents.empty()) {
+            sampling = 100;
+            return;
+        }
         sampling = tevents[0]->time;
         for (int i=0; i<tevents.size(); i++) {
             if (sampling > tevents[i]->time) {

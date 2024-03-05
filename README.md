@@ -8,12 +8,12 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 - Object oriented
 - Small and easy to integrate
 - Header only
-- Asynchronous launch functions
-- Multithread parallel execution of tasks
-- Timer functions: interval, timeout
-- Events (on, emit)
-- Event loop
-
+- Asynchronous programming
+- Multithread
+- Asynchronous timer functions: interval, timeout
+- Typed events (on, emit)
+- Event loops
+- Parallel execution loops
 ## Installation
 
 Just download the latest release and unzip it into your project. 
@@ -37,7 +37,7 @@ Time asynchronous functions
 
 ```c++
 // start interval
-interval inter1 ([&]() {
+interval inter1 ([]() {
      cout << "Interval 1" << endl;
 }, 1000);
 
@@ -45,7 +45,7 @@ interval inter1 ([&]() {
 inter1.clear();
 
 // start timeout
-timeout time1 ( [&] () {
+timeout time1 ( [] () {
     cout << "Timeout 1 " << endl;
 }, 10000);
 
@@ -60,8 +60,8 @@ Make functions asynchronous
 */
 
 auto res1 = on_async.put_task( [] () {
-    cout << "Jebiga " <<endl;
-    throw string ("jebiga!!");
+    cout << "Not except " <<endl;
+    throw string ("Is except!");
 });
 
 try {
@@ -71,14 +71,42 @@ try {
 }
 
 /**
-* Run an function asyncronic
+* Run an lambda function asyncronic
 */
 
 asynco( []() {
-    sleep_for(2s);   // only for simulate log duration function
+    sleep_for(2s);   // only for simulating long duration function
     cout << "asynco" << endl;
     return 5;
 });
+
+
+/**
+ * Run not lambda function
+*/
+
+void notLambdaFunction() {
+    cout << "Call to not lambda function" << endl;
+}
+
+asynco (notLambdaFunction);
+
+/**
+ * Run class method
+*/
+
+class clm {
+    public:
+    void classMethode() {
+        cout << "Call class method" << endl;
+    }
+};
+
+clm classes;
+asynco( [&classes] () {
+    classes.classMethode();
+});
+
 
 
 /**
@@ -86,7 +114,7 @@ asynco( []() {
 */
 
 auto a = asynco( []() {
-    sleep_for(2s);   // only for simulate log duration function
+    sleep_for(2s);   // only for simulating long duration function
     cout << "asynco" << endl;
     return 5;
 });
@@ -98,7 +126,7 @@ cout << wait(move(a)) << endl;
 */
 
 cout << wait(asynco( [] () {
-    sleep_for(chrono::seconds(1)); // only for simulate log duration function
+    sleep_for(chrono::seconds(1)); // only for simulating long duration function
     cout << "wait end" << endl;
     return 4;
 })) << endl;

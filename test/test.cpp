@@ -41,6 +41,17 @@ void promise_reject (int _time) {
     return _promise.get_future().get();
 }
 
+void notLambdaFunction() {
+    cout << "Call to not lambda function" << endl;
+}
+
+class clm {
+    public:
+    void classMethode() {
+        cout << "Call class method" << endl;
+    }
+};
+
 // ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
 
 class myOwnClass : public event<int> {
@@ -50,6 +61,7 @@ class myOwnClass : public event<int> {
 
 
 int main () {
+    on_async.change_runners(64);
 
     auto start = rtime_ms();
 
@@ -58,6 +70,26 @@ int main () {
     /**
      * Init interval and timeout; clear interval and timeout
     */
+
+    // ovo ne radi
+
+    // vector<interval> interv;
+    // vector<timeout> tmout;
+
+    // for (int i=0; i< 20; i++) {
+    //     interv.push_back( interval( [i] () {
+    //         cout << "interval " << i << endl;
+    //     }, 1000));
+    //     tmout.push_back( timeout( [i] () {
+    //         cout << "timeout " << i << endl;
+    //     }, 1000*i));
+    // }
+
+    // ovo valja popravit
+
+    // interval( [] () {
+    //     cout << "interval " << endl;
+    // }, 1000);
 
     // interval inter1 ([&]() {
     //     cout << "interval prvi " << rtime_ms() - start << endl;
@@ -83,11 +115,11 @@ int main () {
     //     time1.clear();
     // }, 2000);
 
-    // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
+    // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
-    /**
-     * Put task directly and get returned value - it is not recommended to use it
-    */
+    // /**
+    //  * Put task directly and get returned value - it is not recommended to use it
+    // */
 
     // auto res1 = on_async.put_task( [] () {
     //     cout << "Jebiga " <<endl;
@@ -100,9 +132,9 @@ int main () {
     //     cout << except << endl;
     // }
 
-    /**
-     * Run an function asyncronic
-    */
+    // /**
+    //  * Run an function asyncronic
+    // */
 
     // asynco( []() {
     //     sleep_for(2s);   // only for simulate log duration function
@@ -110,10 +142,29 @@ int main () {
     //     return 5;
     // });
 
+    // /**
+    //  * Call not lambda function
+    // */
 
-    /**
-     * Wait after runned as async
-     */
+    // asynco (notLambdaFunction);
+
+    // /**
+    //  * Call class method
+    // */
+
+    // clm classes;
+    // asynco( [&classes] () {
+    //     classes.classMethode();
+    // });
+
+    // // sleep(5);
+
+
+
+
+    // /**
+    //  * Wait after runned as async
+    //  */
 
     // auto a = asynco( []() {
     //     sleep_for(2s);   // only for simulate log duration function
@@ -123,9 +174,9 @@ int main () {
 
     // cout << wait(move(a)) << endl;
 
-    /**
-     * Wait async function call and use i cout
-    */
+    // /**
+    //  * Wait async function call and use i cout
+    // */
 
     // cout << wait(asynco( [] () {
     //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
@@ -133,16 +184,16 @@ int main () {
     //     return 4;
     // })) << endl;
 
-    /**
-     * Sleep with timeout sleep implement
-    */
+    // /**
+    //  * Sleep with timeout sleep implement
+    // */
 
     // sleep_to(3000);
     // cout << "sleep_to " << rtime_ms() - start << endl;
 
-    /**
-     * Catch promise reject
-    */
+    // /**
+    //  * Catch promise reject
+    // */
 
     // try {
     //     promise_reject(3000);
@@ -153,9 +204,9 @@ int main () {
     // cout << "promise_reject " << rtime_ms() - start << endl;
 
 
-    /**
-     * Nested asynchronous invocation
-    */
+    // /**
+    //  * Nested asynchronous invocation
+    // */
 
 
     // asynco( [] {
@@ -165,11 +216,11 @@ int main () {
     //     });
     // });
 
-    // --------------- EVENTS -------------------
+    // // --------------- EVENTS -------------------
 
-    /**
-     * initialization of typed events
-    */
+    // /**
+    //  * initialization of typed events
+    // */
 
     // event<int, int> ev2int;
     // event<int, string> evintString;
@@ -187,11 +238,11 @@ int main () {
     //     cout << "Void emited" << endl;
     // });
 
-    // sleep(1);
+    // // sleep(1);
 
-    /**
-     * Emit
-    */
+    // /**
+    //  * Emit
+    // */
 
     // ev2int.emit("sum", 5, 8);
 
@@ -201,9 +252,9 @@ int main () {
     // sleep(1);
     // evoid.emit("void");
 
-    /**
-     * Own class 
-    */
+    // /**
+    //  * Own class 
+    // */
 
     // myOwnClass myclass;
 
@@ -215,7 +266,7 @@ int main () {
     //     cout << "Constructed " << i  << endl;
     // });
 
-    sleep(10000); // only for testing
+    sleep(100000); // only for testing
 
     return 0;
 }
