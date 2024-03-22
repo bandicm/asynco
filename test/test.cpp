@@ -1,5 +1,5 @@
+#define NUM_OF_RUNNERS 2
 
-#include "../lib/runner.hpp"
 #include "../lib/asynco.hpp"
 #include "../lib/event.hpp"
 #include "../lib/rotor.hpp"
@@ -10,12 +10,6 @@
 using namespace std;
 using namespace marcelb;
 using namespace this_thread;
-
-#ifndef ON_RUNNER
-#define ON_RUNNER
-runner on_async;
-#endif
-
 
 void sleep_to (int _time) {
     promise<void> _promise;
@@ -61,7 +55,6 @@ class myOwnClass : public event<int> {
 
 
 int main () {
-    on_async.change_runners(64);
 
     auto start = rtime_ms();
 
@@ -70,22 +63,6 @@ int main () {
     /**
      * Init interval and timeout; clear interval and timeout
     */
-
-    // ovo ne radi
-
-    // vector<interval> interv;
-    // vector<timeout> tmout;
-
-    // for (int i=0; i< 20; i++) {
-    //     interv.push_back( interval( [i] () {
-    //         cout << "interval " << i << endl;
-    //     }, 1000));
-    //     tmout.push_back( timeout( [i] () {
-    //         cout << "timeout " << i << endl;
-    //     }, 1000*i));
-    // }
-
-    // ovo valja popravit
 
     // interval( [] () {
     //     cout << "interval " << endl;
@@ -106,8 +83,11 @@ int main () {
     // timeout time1 ( [&] () {
     //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
     //     inter1.clear();
+    //     // cout << "inter1.stop " << inter1.stop << endl;
     //     inter2.clear();
-    // }, 10000);
+    //     // cout << "inter2.stop " << inter2.stop << endl;
+
+    // }, 5000);
 
     // timeout time2 ([&] () {
     //     cout << "Close interval 3 " << rtime_ms() - start << endl;
@@ -118,27 +98,12 @@ int main () {
     // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
     // /**
-    //  * Put task directly and get returned value - it is not recommended to use it
-    // */
-
-    // auto res1 = on_async.put_task( [] () {
-    //     cout << "Jebiga " <<endl;
-    //     throw string ("jebiga!!");
-    // });
-
-    // try {
-    //     res1.get();
-    // } catch (const string except) {
-    //     cout << except << endl;
-    // }
-
-    // /**
     //  * Run an function asyncronic
     // */
 
     // asynco( []() {
     //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "asynco" << endl;
+    //     cout << "asynco 1" << endl;
     //     return 5;
     // });
 
@@ -147,6 +112,13 @@ int main () {
     // */
 
     // asynco (notLambdaFunction);
+
+
+    // wait (
+    //     asynco (
+    //         notLambdaFunction
+    //     )
+    // );
 
     // /**
     //  * Call class method
@@ -157,10 +129,7 @@ int main () {
     //     classes.classMethode();
     // });
 
-    // // sleep(5);
-
-
-
+    // sleep(5);
 
     // /**
     //  * Wait after runned as async
@@ -168,11 +137,12 @@ int main () {
 
     // auto a = asynco( []() {
     //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "asynco" << endl;
+    //     cout << "asynco 2" << endl;
     //     return 5;
     // });
 
-    // cout << wait(move(a)) << endl;
+    // cout << wait(a) << endl;
+    // cout << "print after asynco 2" << endl;
 
     // /**
     //  * Wait async function call and use i cout
@@ -191,9 +161,9 @@ int main () {
     // sleep_to(3000);
     // cout << "sleep_to " << rtime_ms() - start << endl;
 
-    // /**
-    //  * Catch promise reject
-    // */
+    /**
+     * Catch promise reject
+    */
 
     // try {
     //     promise_reject(3000);
@@ -230,6 +200,10 @@ int main () {
     //     cout << "Sum " << a+b << endl;
     // });
 
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum done" << endl;
+    // });
+
     // evintString.on("substract", [](int a, string b) {
     //     cout << "Substract " << a-stoi(b) << endl;
     // });
@@ -238,18 +212,27 @@ int main () {
     //     cout << "Void emited" << endl;
     // });
 
-    // // sleep(1);
+    // string emited2 = "2";
+
+    // evoid.on("void", [&]() {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
+
+    // evoid.emit("void");
+    // sleep(1);
 
     // /**
     //  * Emit
     // */
 
     // ev2int.emit("sum", 5, 8);
+    
 
     // sleep(1);
     // evintString.emit("substract", 3, to_string(2));
 
     // sleep(1);
+    // evoid.off("void");
     // evoid.emit("void");
 
     // /**

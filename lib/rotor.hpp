@@ -3,16 +3,12 @@
 
 #include "runner.hpp"
 #include "chrono"
+#include <memory>
 
 #include "iostream"
 
 using namespace std;
 using namespace marcelb;
-
-#ifndef ON_RUNNER
-#define ON_RUNNER
-runner on_async;
-#endif
 
 namespace marcelb {
 
@@ -27,15 +23,38 @@ int64_t rtime_ms() {
 }
 
 /**
- * Structure for time events
+ * Intern class for timer async loop
 */
-
-struct time_event {
+class timer_core {
+    public:
+    mutex hangon;
     function<void()> callback;
     int64_t init;
     int64_t time;
     bool repeat;
     bool stop;
+
+    /**
+     * Timer constructor, receives a callback function and time
+    */
+    timer_core( function<void()> _callback, int64_t _time, bool _repeat):
+        callback(_callback), init(rtime_ms()), time(_time), repeat(_repeat), stop(false) {
+    }
+
+    /**
+     * Stop timer
+    */
+    void clear() {
+        lock_guard<mutex> hang(hangon);
+        stop = true;
+    }
+
+    /**
+     * Destruktor of timer, call stop
+    */
+    ~timer_core() {
+        clear();
+    }
 };
 
 /**
@@ -43,7 +62,7 @@ struct time_event {
 */
 
 class rotor {
-    vector<struct time_event *> tevents;
+    vector<shared_ptr<timer_core>> tcores;
     mutex te_m;
     bool rotating = true;
     int64_t sampling;
@@ -54,17 +73,17 @@ class rotor {
     */
     void loop() {
         while (rotating) {
-            for (int i=0; i<tevents.size(); i++) {
+            for (int i=0; i<tcores.size(); i++) {
 
-                if (tevents[i]->stop) {
+                if (tcores[i]->stop) {
                     remove(i);
                     i--;
                 }
 
-                else if (expired(tevents[i])) {
-                    on_async.put_task(tevents[i]->callback);
-                    if (tevents[i]->repeat) {
-                        tevents[i]->init = rtime_ms();
+                else if (expired(tcores[i])) {
+                    _asyncon.put_task(tcores[i]->callback);
+                    if (tcores[i]->repeat) {
+                        tcores[i]->init = rtime_ms();
                     }
                     else {
                         remove(i);
@@ -79,8 +98,8 @@ class rotor {
     /**
      * The method checks whether the time event has expired
     */
-    bool expired(struct time_event *tevent) {
-        return rtime_ms() - tevent->init >= tevent->time;
+    bool expired(shared_ptr<timer_core> tcore) {
+        return rtime_ms() - tcore->init >= tcore->time;
     }
 
     /**
@@ -88,7 +107,7 @@ class rotor {
     */
     void remove(const int& position) {
         lock_guard<mutex> lock(te_m);
-        tevents.erase(tevents.begin()+position);
+        tcores.erase(tcores.begin()+position);
         update_sampling();
     }
 
@@ -96,17 +115,17 @@ class rotor {
      * Updates the idle time of the loop, according to twice the frequency of available events
     */
     void update_sampling() {
-        if (tevents.empty()) {
+        if (tcores.empty()) {
             sampling = 100;
             return;
         }
-        sampling = tevents[0]->time;
-        for (int i=0; i<tevents.size(); i++) {
-            if (sampling > tevents[i]->time) {
-                sampling = tevents[i]->time;
+        sampling = tcores[0]->time;
+        for (int i=0; i<tcores.size(); i++) {
+            if (sampling > tcores[i]->time) {
+                sampling = tcores[i]->time;
             }
         }
-        sampling /= tevents.size()*2;
+        sampling /= tcores.size()*2;
     }
 
     public:
@@ -115,7 +134,7 @@ class rotor {
      * Constructor for the rotor, starts the given loop by occupying one runner
     */
     rotor() {
-        on_async.put_task( [&] () {
+        _asyncon.put_task( [&] () {
             loop();
         });
     };
@@ -123,9 +142,9 @@ class rotor {
     /**
      * Adds a time event to the stack
     */
-    void insert(struct time_event *tevent) {
+    void insert(shared_ptr<timer_core> tcore) {
         lock_guard<mutex> lock(te_m);
-        tevents.push_back(tevent);
+        tcores.push_back(tcore);
         update_sampling();
     };
 
@@ -133,15 +152,15 @@ class rotor {
      * Returns the number of active events
     */
     int active() {
-        return tevents.size();
+        return tcores.size();
     }
 
     /**
      * Stops all active events and stops the rotor
     */
     ~rotor() {
-        for (int i=0; i<tevents.size(); i++) {
-            tevents[i]->stop = true;
+        for (int i=0; i<tcores.size(); i++) {
+            tcores[i]->clear();
         }
         rotating = false;
     }
@@ -151,33 +170,32 @@ class rotor {
 /**
  * It is intended that there is only one global declaration
 */
-rotor _rotor;
+static rotor _rotor;
 
 /**
- * A class for all timer functions
+ * Core class for pure async timer functions
 */
-class timer_core {
+
+class _timer_intern {
+    shared_ptr<timer_core> tcore;
     public:
-    struct time_event t_event;
 
-    /**
-     * Timer constructor, receives a callback function and time
-    */
-    timer_core( function<void()> _callback, int64_t _time):
-        t_event({ _callback, rtime_ms(), _time, false, false }) {
-
+    _timer_intern(function<void()> _callback, int64_t _time, bool repeat) {
+        tcore = make_shared<timer_core>(_callback, _time, repeat);
+        _rotor.insert(tcore);
     }
+    
     /**
-     * Stop timer
+     * Stop interval
     */
     void clear() {
-        t_event.stop = true;
+        tcore->clear();
     }
 
     /**
      * Destruktor of timer, call stop
     */
-    ~timer_core() {
+    ~_timer_intern() {
         clear();
     }
 };
@@ -185,31 +203,30 @@ class timer_core {
 /**
  * Class interval for periodic execution of the callback in time in ms
 */
-class interval : public timer_core {
+class interval : public _timer_intern {
     public:
-    
+
     /**
      * The constructor receives a callback function and an interval time
     */
-    interval( function<void()> _callback, int64_t _time): timer_core(_callback, _time) {
-        t_event.repeat = true;
-        _rotor.insert(&t_event);
+    interval( function<void()> _callback, int64_t _time):
+        _timer_intern(_callback, _time, true) {
     }
 };
 
 /**
  * Class interval for delayed callback execution in ms
 */
-class timeout : public timer_core {
+class timeout : public _timer_intern {
     public:
 
     /**
      * The constructor receives a callback function and a delay time
     */
-    timeout( function<void()> _callback, int64_t delay): timer_core(_callback, delay) {
-        t_event.repeat = false;
-        _rotor.insert(&t_event);
+    timeout( function<void()> _callback, int64_t delay):
+        _timer_intern(_callback, delay, false) {
     }
+
 };
 
 }

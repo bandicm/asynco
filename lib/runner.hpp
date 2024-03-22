@@ -13,9 +13,7 @@ using namespace std;
 
 namespace marcelb {
 
-#ifdef ON_RUNNER
-extern runner on_async;
-#endif
+#define HW_CONCURRENCY_MINIMAL 4
 
 /**
  * The runner class implements multithread, task stack and event loop for asynchronous execution of tasks
@@ -27,12 +25,29 @@ class runner {
     mutex q_io;
     condition_variable cv;
     bool stop;
-   
+
+    public:
+
     /**
-     * Increase number of runners
+     * The constructor starts as many threads as the system has cores, 
+     * and runs an event loop inside each one. 
+     * Each event loop waits for tasks from the stack and executes them.
     */
-    void increase_runners(unsigned int increase) {
-        for (size_t i = 0; i < increase; ++i) {
+    runner(unsigned int _num_of_runners = 0) : stop(false) {
+        unsigned int num_of_runners = _num_of_runners;
+
+        if (num_of_runners == 0) {
+            #ifdef NUM_OF_RUNNERS
+                num_of_runners = NUM_OF_RUNNERS;
+            #else
+                num_of_runners = thread::hardware_concurrency();
+                if (num_of_runners < HW_CONCURRENCY_MINIMAL) {
+                    num_of_runners = HW_CONCURRENCY_MINIMAL;
+                }
+            #endif
+        }
+
+        for (size_t i = 0; i < num_of_runners; ++i) {
             runners.emplace_back( thread([&] {
                 while (!stop) {
                     function<void()> task;
@@ -49,21 +64,6 @@ class runner {
                 }
             }));
         }
-    }
-
-    public:
-
-    /**
-     * The constructor starts as many threads as the system has cores, 
-     * and runs an event loop inside each one. 
-     * Each event loop waits for tasks from the stack and executes them.
-    */
-    runner(size_t pool_size = thread::hardware_concurrency()) : stop(false) {
-        if (pool_size < 4) {
-            pool_size = 4;
-        }
-        increase_runners(pool_size);
-        // start_all_runners(pool_size);
     }
 
     
@@ -90,22 +90,6 @@ class runner {
 
         cv.notify_one();
         return res;
-    }
-
-    /**
-     * Change the number of runners
-    */
-    void change_runners (unsigned int num_of_runners) {
-        if (num_of_runners == 0 || num_of_runners > 64) {
-            throw runtime_error("Not allowed runners size");
-        }
-
-        int difference = num_of_runners - count_threads();
-        if (difference < 0) { // reduce
-            throw runtime_error("Is not allowed to reduce runners");
-        } else if (difference > 0) { // increase
-            increase_runners(difference);
-        }
     }
 
     /**
@@ -138,6 +122,12 @@ class runner {
     }
 
 };
+
+
+/**
+ * Internal global library variable
+*/
+static runner _asyncon;
 
 }
 

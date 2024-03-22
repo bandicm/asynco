@@ -25,6 +25,8 @@
         "future": "cpp",
         "*.ipp": "cpp",
         "bitset": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     }
 }

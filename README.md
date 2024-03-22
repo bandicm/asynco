@@ -11,24 +11,22 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 - Asynchronous programming
 - Multithread
 - Asynchronous timer functions: interval, timeout
-- Typed events (on, emit)
+- Typed events (on, emit, off)
 - Event loops
-- Parallel execution loops
+- Multiple parallel execution loops
 ## Installation
 
 Just download the latest release and unzip it into your project. 
 
 ```c++
+#define NUM_OF_RUNNERS 2            // To change the number of threads used by asynco
+
 #include "asynco/lib/asynco.hpp"    // asynco(), wait()
 #include "asynco/lib/event.hpp"     // event
 #include "asynco/lib/rotor.hpp"     // interval, timeout
-#include "asynco/lib/runner.hpp"    // on_async
+#include "asynco/lib/runner.hpp"    // for own loop
 using namespace marcelb;
 
-#ifndef ON_RUNNER
-#define ON_RUNNER
-runner on_async;
-#endif
 ```
 
 ## Usage
@@ -56,22 +54,7 @@ Make functions asynchronous
 
 ```c++
 /**
-* Put task directly and get returned value - it is not recommended to use it
-*/
-
-auto res1 = on_async.put_task( [] () {
-    cout << "Not except " <<endl;
-    throw string ("Is except!");
-});
-
-try {
-    res1.get();
-} catch (const string except) {
-    cout << except << endl;
-}
-
-/**
-* Run an lambda function asyncronic
+* Run an lambda function asynchronously
 */
 
 asynco( []() {
@@ -119,7 +102,7 @@ auto a = asynco( []() {
     return 5;
 });
 
-cout << wait(move(a)) << endl;
+cout << wait(a) << endl;
 
 /**
 * Wait async function call and use i cout
@@ -194,6 +177,14 @@ evoid.on("void", []() {
     cout << "Void emited" << endl;
 });
 
+// multiple listeners
+
+string emited2 = "2";
+
+evoid.on("void", [&]() {
+    cout << "Void emited " << emited2 << endl;
+});
+
 sleep(1);
 
 /**
@@ -207,6 +198,12 @@ evintString.emit("substract", 3, to_string(2));
 
 sleep(1);
 evoid.emit("void");
+
+// Turn off the event listener
+
+evoid.off("void");
+evoid.emit("void"); // nothing is happening
+
 ```
 Extend own class whit events
 

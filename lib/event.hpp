@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 #include <string>
 #include <functional>
 #include "runner.hpp"
@@ -11,11 +12,6 @@ using namespace std;
 
 namespace marcelb {
 
-#ifndef ON_RUNNER
-#define ON_RUNNER
-runner on_async;
-#endif
-
 /**
  * Event class, for event-driven programming.
  * These events are typed according to the arguments of the callback function
@@ -23,7 +19,8 @@ runner on_async;
 template<typename... T>
 class event {
     private:
-    unordered_map<string, function<void(T...)>> events;
+    mutex m_eve;
+    unordered_map<string, vector<function<void(T...)>>> events;
 
     public:
 
@@ -31,7 +28,8 @@ class event {
      * Defines event by key, and callback function
     */
     void on(const string& key, function<void(T...)> callback) {
-        events[key] = callback;
+        lock_guard _off(m_eve);
+        events[key].push_back(callback);
     }
 
     /**
@@ -39,11 +37,21 @@ class event {
     */
     template<typename... Args>
     void emit(const string& key, Args... args) {
-        auto it = events.find(key);
-        if (it != events.end()) {
-            auto callback = bind(it->second, forward<Args>(args)...);
-            on_async.put_task(callback);
+        auto it_eve = events.find(key);
+        if (it_eve != events.end()) {
+            for (uint i =0; i<it_eve->second.size(); i++) {
+                auto callback = bind(it_eve->second[i], forward<Args>(args)...); 
+                _asyncon.put_task(callback);
+            }
         }
+    }
+
+    /**
+     * Remove an event listener from an event
+    */
+    void off(const string& key) {
+        lock_guard _off(m_eve);
+        events.erase(key);
     }
 
 
