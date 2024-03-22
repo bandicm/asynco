@@ -64,9 +64,22 @@ int main () {
      * Init interval and timeout; clear interval and timeout
     */
 
-    // interval( [] () {
-    //     cout << "interval " << endl;
-    // }, 1000);
+    interval( [&] () {
+        cout << "interval "  << rtime_ms() - start << endl;
+    }, 200);
+
+    interval( [&] () {
+        cout << "interval " << rtime_ms() - start << endl;
+    }, 200);
+
+    interval( [&] () {
+        cout << "interval " << rtime_ms() - start << endl;
+    }, 200);
+
+
+    interval( [&] () {
+        cout << "interval "  << rtime_ms() - start << endl;
+    }, 200);
 
     // interval inter1 ([&]() {
     //     cout << "interval prvi " << rtime_ms() - start << endl;
@@ -80,19 +93,31 @@ int main () {
     //     cout << "interval treći " << rtime_ms() - start << endl;
     // }, 3000);
 
+    // interval inter4 ([&]() {
+    //     cout << "interval cetvrti " << rtime_ms() - start << endl;
+    // }, 1000);
+
+    // interval inter5 ([&]() {
+    //     cout << "interval peti " << rtime_ms() - start << endl;
+    // }, 2000);
+
+    // interval inter6 ([&]() {
+    //     cout << "interval sesti " << rtime_ms() - start << endl;
+    // }, 3000);
+
     // timeout time1 ( [&] () {
     //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-    //     inter1.clear();
+    //     // inter1.clear();
     //     // cout << "inter1.stop " << inter1.stop << endl;
-    //     inter2.clear();
+    //     // inter2.clear();
     //     // cout << "inter2.stop " << inter2.stop << endl;
 
     // }, 5000);
 
     // timeout time2 ([&] () {
     //     cout << "Close interval 3 " << rtime_ms() - start << endl;
-    //     inter3.clear();
-    //     time1.clear();
+    //     // inter3.clear();
+    //     // time1.clear();
     // }, 2000);
 
     // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------

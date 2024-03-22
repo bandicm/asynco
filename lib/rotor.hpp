@@ -191,13 +191,6 @@ class _timer_intern {
     void clear() {
         tcore->clear();
     }
-
-    /**
-     * Destruktor of timer, call stop
-    */
-    ~_timer_intern() {
-        clear();
-    }
 };
 
 /**
