@@ -14,6 +14,7 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 - Typed events (on, emit, off)
 - Event loops
 - Multiple parallel execution loops
+- Asynchronous file IO
 ## Installation
 
 Just download the latest release and unzip it into your project. 
@@ -25,6 +26,8 @@ Just download the latest release and unzip it into your project.
 #include "asynco/lib/event.hpp"     // event
 #include "asynco/lib/rotor.hpp"     // interval, timeout
 #include "asynco/lib/runner.hpp"    // for own loop
+#include "asynco/lib/filesystem.hpp"// for async read and write files
+
 using namespace marcelb;
 
 ```
@@ -224,6 +227,31 @@ myclass.on("constructed", [] (int i) {
 });
 
 ```
+
+Asynchronous file IO
+
+```c++
+string data_;
+
+asynco_read("test.txt", [&data_] (string data, exception* error) {
+    if (error) {
+        cout << "Error " << error->what() << endl;
+    } else {
+        cout << "Data " << endl << data << endl;
+        data_ = data;
+        cout << "Data_" << data_ << endl;
+    }
+});
+
+asynco_write("test1.txt", "Hello night", [] (exception* error) {
+    if (error) {
+        cout << "Error " << error->what() << endl;
+    } else {
+        cout << "Write successfuly" << endl;
+    }
+});
+```
+
 ## License
 
 [APACHE 2.0](http://www.apache.org/licenses/LICENSE-2.0/)

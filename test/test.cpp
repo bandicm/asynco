@@ -1,8 +1,9 @@
 #define NUM_OF_RUNNERS 2
 
-#include "../lib/asynco.hpp"
-#include "../lib/event.hpp"
-#include "../lib/rotor.hpp"
+// #include "../lib/asynco.hpp"
+// #include "../lib/event.hpp"
+// #include "../lib/rotor.hpp"
+#include "../lib/filesystem.hpp"
 
 #include <iostream>
 #include <unistd.h>
@@ -11,29 +12,29 @@ using namespace std;
 using namespace marcelb;
 using namespace this_thread;
 
-void sleep_to (int _time) {
-    promise<void> _promise;
-    timeout t( [&]() {
-        _promise.set_value();
-    }, _time);
+// void sleep_to (int _time) {
+//     promise<void> _promise;
+//     timeout t( [&]() {
+//         _promise.set_value();
+//     }, _time);
 
-    return _promise.get_future().get();
-}
+//     return _promise.get_future().get();
+// }
 
-void promise_reject (int _time) {
-    promise<void> _promise;
-    timeout t( [&]() {
-        try {
-            // simulate except
-            throw runtime_error("Error simulation");
-            _promise.set_value();
-        } catch (...) {
-            _promise.set_exception(current_exception());
-        }
-    }, _time);
+// void promise_reject (int _time) {
+//     promise<void> _promise;
+//     timeout t( [&]() {
+//         try {
+//             // simulate except
+//             throw runtime_error("Error simulation");
+//             _promise.set_value();
+//         } catch (...) {
+//             _promise.set_exception(current_exception());
+//         }
+//     }, _time);
 
-    return _promise.get_future().get();
-}
+//     return _promise.get_future().get();
+// }
 
 void notLambdaFunction() {
     cout << "Call to not lambda function" << endl;
@@ -48,15 +49,15 @@ class clm {
 
 // ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
 
-class myOwnClass : public event<int> {
-    public:
-    myOwnClass() : event() {};
-};
+// class myOwnClass : public event<int> {
+//     public:
+//     myOwnClass() : event() {};
+// };
 
 
 int main () {
 
-    auto start = rtime_ms();
+    // auto start = rtime_ms();
 
     // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
@@ -64,22 +65,22 @@ int main () {
      * Init interval and timeout; clear interval and timeout
     */
 
-    interval( [&] () {
-        cout << "interval "  << rtime_ms() - start << endl;
-    }, 200);
+    // interval( [&] () {
+    //     cout << "interval "  << rtime_ms() - start << endl;
+    // }, 200);
 
-    interval( [&] () {
-        cout << "interval " << rtime_ms() - start << endl;
-    }, 200);
+    // interval( [&] () {
+    //     cout << "interval " << rtime_ms() - start << endl;
+    // }, 200);
 
-    interval( [&] () {
-        cout << "interval " << rtime_ms() - start << endl;
-    }, 200);
+    // interval( [&] () {
+    //     cout << "interval " << rtime_ms() - start << endl;
+    // }, 200);
 
 
-    interval( [&] () {
-        cout << "interval "  << rtime_ms() - start << endl;
-    }, 200);
+    // interval( [&] () {
+    //     cout << "interval "  << rtime_ms() - start << endl;
+    // }, 200);
 
     // interval inter1 ([&]() {
     //     cout << "interval prvi " << rtime_ms() - start << endl;
@@ -274,6 +275,28 @@ int main () {
     //     cout << "Constructed " << i  << endl;
     // });
 
+    // string data_;
+
+    // asynco_read("test.txt", [&data_] (string data, exception* error) {
+    //     if (error) {
+    //         cout << "Error " << error->what() << endl;
+    //     } else {
+    //         cout << "Data " << endl << data << endl;
+    //         data_ = data;
+    //         cout << "Data_" << data_ << endl;
+    //     }
+    // });
+
+    // asynco_write("test1.txt", "Hello night", [] (exception* error) {
+    //     if (error) {
+    //         cout << "Error " << error->what() << endl;
+    //     } else {
+    //         cout << "Write successfuly" << endl;
+    //     }
+    // });
+
+
+    cout << "Sleep" << endl;
     sleep(100000); // only for testing
 
     return 0;

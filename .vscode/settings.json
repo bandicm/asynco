@@ -27,6 +27,7 @@
         "bitset": "cpp",
         "algorithm": "cpp",
         "string": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "fstream": "cpp"
     }
 }
