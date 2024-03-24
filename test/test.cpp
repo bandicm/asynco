@@ -275,7 +275,7 @@ int main () {
     //     cout << "Constructed " << i  << endl;
     // });
 
-    // string data_;
+    string data_;
 
     // asynco_read("test.txt", [&data_] (string data, exception* error) {
     //     if (error) {
@@ -287,6 +287,15 @@ int main () {
     //     }
     // });
 
+    // auto data = asynco_read("test4.txt");
+
+    // try {
+    //     data_ = wait(data);
+    //     cout << "data" << data_ << endl;
+    // } catch (exception& err) {
+    //     cout << err.what() << endl;
+    // }
+
     // asynco_write("test1.txt", "Hello night", [] (exception* error) {
     //     if (error) {
     //         cout << "Error " << error->what() << endl;
@@ -295,6 +304,14 @@ int main () {
     //     }
     // });
 
+    auto status = asynco_write("test1.txt", "Hello night");
+
+
+    // try {
+    //     wait(status);
+    // } catch (exception& err) {
+    //     cout << err.what() << endl;
+    // }
 
     cout << "Sleep" << endl;
     sleep(100000); // only for testing
