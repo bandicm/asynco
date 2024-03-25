@@ -12,6 +12,7 @@
 using namespace std;
 
 namespace marcelb {
+namespace asynco {
 
 #define HW_CONCURRENCY_MINIMAL 4
 
@@ -129,6 +130,7 @@ class runner {
 */
 static runner _asyncon;
 
+}
 }
 
 #endif

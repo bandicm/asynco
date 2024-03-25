@@ -9,8 +9,10 @@
 
 using namespace std;
 using namespace marcelb;
+using namespace asynco;
 
 namespace marcelb {
+namespace asynco {
 
 /**
  * Get the time in ms from the epoch
@@ -27,6 +29,8 @@ int64_t rtime_us() {
         .time_since_epoch())
         .count();
 }
+
+namespace {
 
 /**
  * Intern class for timer async loop
@@ -177,6 +181,7 @@ class rotor {
  * It is intended that there is only one global declaration
 */
 static rotor _rotor;
+}
 
 /**
  * Core class for pure async timer functions
@@ -228,6 +233,7 @@ class timeout : public _timer_intern {
 
 };
 
+}
 }
 
 #endif

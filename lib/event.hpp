@@ -11,6 +11,8 @@
 using namespace std;
 
 namespace marcelb {
+namespace asynco {
+namespace events {
 
 /**
  * Event class, for event-driven programming.
@@ -57,6 +59,8 @@ class event {
 
 };
 
+}
+}
 }
 
 #endif

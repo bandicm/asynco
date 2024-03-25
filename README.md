@@ -20,15 +20,17 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 Just download the latest release and unzip it into your project. 
 
 ```c++
-#define NUM_OF_RUNNERS 2            // To change the number of threads used by asynco
+#define NUM_OF_RUNNERS 8                // To change the number of threads used by atask, without this it runs according to the number of cores
 
-#include "asynco/lib/asynco.hpp"    // asynco(), wait()
-#include "asynco/lib/event.hpp"     // event
-#include "asynco/lib/rotor.hpp"     // interval, timeout
-#include "asynco/lib/runner.hpp"    // for own loop
-#include "asynco/lib/filesystem.hpp"// for async read and write files
+#include "asynco/lib/asynco.hpp"          // atask(), wait()
+#include "asynco/lib/event.hpp"          // event
+#include "asynco/lib/rotor.hpp"          // interval, timeout
+#include "asynco/lib/runner.hpp"         // for own loop
+#include "asynco/lib/filesystem.hpp"     // for async read and write files
 
 using namespace marcelb;
+using namespace asynco;
+using namespace events;
 
 ```
 
@@ -60,9 +62,9 @@ Make functions asynchronous
 * Run an lambda function asynchronously
 */
 
-asynco( []() {
+atask( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "atask" << endl;
     return 5;
 });
 
@@ -75,7 +77,7 @@ void notLambdaFunction() {
     cout << "Call to not lambda function" << endl;
 }
 
-asynco (notLambdaFunction);
+atask (notLambdaFunction);
 
 /**
  * Run class method
@@ -89,7 +91,7 @@ class clm {
 };
 
 clm classes;
-asynco( [&classes] () {
+atask( [&classes] () {
     classes.classMethode();
 });
 
@@ -99,9 +101,9 @@ asynco( [&classes] () {
 * Wait after runned as async
 */
 
-auto a = asynco( []() {
+auto a = atask( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "atask" << endl;
     return 5;
 });
 
@@ -111,7 +113,7 @@ cout << wait(a) << endl;
 * Wait async function call and use i cout
 */
 
-cout << wait(asynco( [] () {
+cout << wait(atask( [] () {
     sleep_for(chrono::seconds(1)); // only for simulating long duration function
     cout << "wait end" << endl;
     return 4;
@@ -233,7 +235,7 @@ Asynchronous file IO
 ```c++
 string data_;
 
-asynco_read("test.txt", [&data_] (string data, exception* error) {
+fs::read("test.txt", [&data_] (string data, exception* error) {
     if (error) {
         cout << "Error " << error->what() << endl;
     } else {
@@ -243,13 +245,30 @@ asynco_read("test.txt", [&data_] (string data, exception* error) {
     }
 });
 
-asynco_write("test1.txt", "Hello night", [] (exception* error) {
+fs::write("test1.txt", "Hello world", [] (exception* error) {
     if (error) {
         cout << "Error " << error->what() << endl;
     } else {
         cout << "Write successfuly" << endl;
     }
 });
+
+auto future_data = fs::read("test.txt");
+
+try {
+    string data = wait(future_data);
+} catch (exception& err) {
+    cout << err.what() << endl;
+}
+
+auto future_status = fs::write("test.txt", "Hello world");
+
+try {
+    wait(future_status);
+} catch (exception& err) {
+    cout << err.what() << endl;
+}
+
 ```
 
 ## License

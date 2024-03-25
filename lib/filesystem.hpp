@@ -8,15 +8,19 @@
 #include <iostream>
 
 using namespace std;
+using namespace marcelb;
+using namespace asynco;
 
 namespace marcelb {
+namespace asynco {
+namespace fs {
 
 /**
  * Asynchronous file reading with callback after read complete
 */
 template<typename Callback>
-void asynco_read(string path, Callback&& callback) {
-    asynco( [&path, callback] () {
+void read(string path, Callback&& callback) {
+    async( [&path, callback] () {
         string content;
         try {
             string line;
@@ -44,8 +48,8 @@ void asynco_read(string path, Callback&& callback) {
 /**
  * Asynchronous file reading
 */
-future<string> asynco_read(string path) {
-    return asynco( [&path] () {
+future<string> read(string path) {
+    return async( [&path] () {
         string content;
         string line;
         ifstream file (path);
@@ -68,8 +72,8 @@ future<string> asynco_read(string path) {
  * Asynchronous file writing with callback after write complete
 */
 template<typename Callback>
-void asynco_write(string path, string content, Callback&& callback) {
-    asynco( [&path, &content, callback] () {
+void write(string path, string content, Callback&& callback) {
+    async( [&path, &content, callback] () {
         try {
             ofstream file (path);
             if (file.is_open()) {
@@ -91,8 +95,8 @@ void asynco_write(string path, string content, Callback&& callback) {
 /**
  * Asynchronous file writing with callback after write complete
 */
-future<void> asynco_write(string path, string content) {
-    return asynco( [&path, &content] () {
+future<void> write(string path, string content) {
+    return async( [&path, &content] () {
         ofstream file (path);
         if (file.is_open()) {
             file << content;
@@ -105,7 +109,8 @@ future<void> asynco_write(string path, string content) {
     });
 }
 
-
+}
+}
 }
 
 #endif
