@@ -22,6 +22,12 @@ int64_t rtime_ms() {
         .count();
 }
 
+int64_t rtime_us() {
+    return chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now()
+        .time_since_epoch())
+        .count();
+}
+
 /**
  * Intern class for timer async loop
 */
@@ -38,7 +44,7 @@ class timer_core {
      * Timer constructor, receives a callback function and time
     */
     timer_core( function<void()> _callback, int64_t _time, bool _repeat):
-        callback(_callback), init(rtime_ms()), time(_time), repeat(_repeat), stop(false) {
+        callback(_callback), init(rtime_us()), time(_time*1000), repeat(_repeat), stop(false) {
     }
 
     /**
@@ -83,7 +89,7 @@ class rotor {
                 else if (expired(tcores[i])) {
                     _asyncon.put_task(tcores[i]->callback);
                     if (tcores[i]->repeat) {
-                        tcores[i]->init = rtime_ms();
+                        tcores[i]->init = rtime_us();
                     }
                     else {
                         remove(i);
@@ -91,7 +97,7 @@ class rotor {
                     }
                 }
             }
-            this_thread::sleep_for(chrono::milliseconds(sampling));
+            this_thread::sleep_for(chrono::microseconds(sampling));
         } 
     }
 
@@ -99,7 +105,7 @@ class rotor {
      * The method checks whether the time event has expired
     */
     bool expired(shared_ptr<timer_core> tcore) {
-        return rtime_ms() - tcore->init >= tcore->time;
+        return rtime_us() - tcore->init >= tcore->time;
     }
 
     /**

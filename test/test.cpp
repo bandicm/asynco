@@ -65,21 +65,25 @@ int main () {
     */
 
     interval( [&] () {
-        cout << "interval "  << rtime_ms() - start << endl;
+        cout << "interval 1: "  << rtime_ms() - start << endl;
+    }, 50);
+
+    interval( [&] () {
+        cout << "interval 1: "  << rtime_ms() - start << endl;
+    }, 100);
+
+    interval( [&] () {
+        cout << "interval 2: " << rtime_ms() - start << endl;
     }, 200);
 
     interval( [&] () {
-        cout << "interval " << rtime_ms() - start << endl;
-    }, 200);
-
-    interval( [&] () {
-        cout << "interval " << rtime_ms() - start << endl;
-    }, 200);
+        cout << "interval 3: " << rtime_ms() - start << endl;
+    }, 300);
 
 
     interval( [&] () {
-        cout << "interval "  << rtime_ms() - start << endl;
-    }, 200);
+        cout << "interval 4: "  << rtime_ms() - start << endl;
+    }, 400);
 
     // interval inter1 ([&]() {
     //     cout << "interval prvi " << rtime_ms() - start << endl;
