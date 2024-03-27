@@ -93,8 +93,10 @@ class rotor {
 
             {
             unique_lock<mutex> te_l(te_m);
-            te_cv.wait(te_l, [this]{ return !tcores.empty(); });
-            // calc_next();
+            te_cv.wait(te_l, [this]{ return !tcores.empty() || rotating; });
+            if (!rotating) {
+                break;
+            }
 
             next_tc = min_element( tcores.begin(), tcores.end(),
                 [](shared_ptr<timer_core> a, shared_ptr<timer_core> b ) {
@@ -131,7 +133,7 @@ class rotor {
     void remove(vector<shared_ptr<timer_core>>::iterator it) {
         lock_guard<mutex> lock(te_m);
         tcores.erase(it);
-        te_cv.notify_one();
+        // te_cv.notify_one();
     }
 
     public:
