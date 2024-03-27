@@ -3,7 +3,7 @@
 #include "../lib/asynco.hpp"
 #include "../lib/event.hpp"
 #include "../lib/rotor.hpp"
-// #include "../lib/filesystem.hpp"
+#include "../lib/filesystem.hpp"
 
 #include <iostream>
 #include <unistd.h>
@@ -11,7 +11,7 @@
 using namespace std;
 using namespace marcelb::asynco;
 using namespace events;
-// using namespace asynco;
+using namespace asynco;
 using namespace this_thread;
 
 void sleep_to (int _time) {
@@ -88,17 +88,17 @@ int main () {
     //     cout << "interval 4: "  << rtime_ms() - start << endl;
     // }, 400);
 
-    interval inter1 ([&]() {
-        cout << "interval prvi " << rtime_ms() - start << endl;
-    }, 1000);
+    // interval inter1 ([&]() {
+    //     cout << "interval prvi " << rtime_ms() - start << endl;
+    // }, 1000);
 
-    interval inter2 ([&]() {
-        cout << "interval drugi " << rtime_ms() - start << endl;
-    }, 2000);
+    // interval inter2 ([&]() {
+    //     cout << "interval drugi " << rtime_ms() - start << endl;
+    // }, 2000);
 
-    interval inter3 ([&]() {
-        cout << "interval treći " << rtime_ms() - start << endl;
-    }, 3000);
+    // interval inter3 ([&]() {
+    //     cout << "interval treći " << rtime_ms() - start << endl;
+    // }, 3000);
 
     // interval inter4 ([&]() {
     //     cout << "interval cetvrti " << rtime_ms() - start << endl;
@@ -112,13 +112,13 @@ int main () {
     //     cout << "interval sesti " << rtime_ms() - start << endl;
     // }, 3000);
 
-    timeout time1 ( [&] () {
-        cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-        // inter1.clear();
-        // cout << "inter1.stop " << inter1.stop << endl;
-        // inter2.clear();
-        // cout << "inter2.stop " << inter2.stop << endl;
-    }, 5000);
+    // timeout time1 ( [&] () {
+    //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
+    //     // inter1.clear();
+    //     // cout << "inter1.stop " << inter1.stop << endl;
+    //     // inter2.clear();
+    //     // cout << "inter2.stop " << inter2.stop << endl;
+    // }, 5000);
 
 
     // timeout time2 ([&] () {
@@ -127,11 +127,11 @@ int main () {
     //     time1.clear();
     // }, 2000);
 
-    // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
+    // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
-    /**
-     * Run an function asyncronic
-    */
+    // /**
+    //  * Run an function asyncronic
+    // */
 
     // atask( []() {
     //     sleep_for(2s);   // only for simulate log duration function
