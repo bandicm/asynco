@@ -112,14 +112,13 @@ int main () {
     //     cout << "interval sesti " << rtime_ms() - start << endl;
     // }, 3000);
 
-    // timeout time1 ( [&] () {
-    //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-    //     inter1.clear();
-    //     // cout << "inter1.stop " << inter1.stop << endl;
-    //     inter2.clear();
-    //     // cout << "inter2.stop " << inter2.stop << endl;
-
-    // }, 5000);
+    timeout time1 ( [&] () {
+        cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
+        // inter1.clear();
+        // cout << "inter1.stop " << inter1.stop << endl;
+        // inter2.clear();
+        // cout << "inter2.stop " << inter2.stop << endl;
+    }, 5000);
 
 
     // timeout time2 ([&] () {
