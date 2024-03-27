@@ -38,9 +38,10 @@ namespace {
 class timer_core {
     public:
     mutex hangon;
+    condition_variable cv;
     function<void()> callback;
-    int64_t init;
     int64_t time;
+    int64_t next;
     bool repeat;
     bool stop;
 
@@ -48,15 +49,17 @@ class timer_core {
      * Timer constructor, receives a callback function and time
     */
     timer_core( function<void()> _callback, int64_t _time, bool _repeat):
-        callback(_callback), init(rtime_us()), time(_time*1000), repeat(_repeat), stop(false) {
+        callback(_callback), time(_time*1000), repeat(_repeat), stop(false) {
+            next = rtime_us() + time;
     }
 
     /**
      * Stop timer
     */
     void clear() {
-        lock_guard<mutex> hang(hangon);
+        // lock_guard<mutex> hang(hangon);
         stop = true;
+        cv.notify_one();
     }
 
     /**
@@ -77,65 +80,58 @@ class rotor {
     bool rotating = true;
     int64_t sampling;
 
+    condition_variable te_cv;
+
     /**
      * Loop method, started by the constructor in a separate runner
      * It checks the events on the stack and sends the expired ones to the runner
     */
     void loop() {
         while (rotating) {
-            for (int i=0; i<tcores.size(); i++) {
+            vector<shared_ptr<timer_core>>::iterator next_tc;
+            shared_ptr<timer_core> next_ptr;
 
-                if (tcores[i]->stop) {
-                    remove(i);
-                    i--;
+            {
+            unique_lock<mutex> te_l(te_m);
+            te_cv.wait(te_l, [this]{ return !tcores.empty(); });
+            // calc_next();
+
+            next_tc = min_element( tcores.begin(), tcores.end(),
+                [](shared_ptr<timer_core> a, shared_ptr<timer_core> b ) {
+                    return a->next < b->next;
                 }
+            );
 
-                else if (expired(tcores[i])) {
-                    _asyncon.put_task(tcores[i]->callback);
-                    if (tcores[i]->repeat) {
-                        tcores[i]->init = rtime_us();
-                    }
-                    else {
-                        remove(i);
-                        i--;
-                    }
+            next_ptr = *next_tc;
+            }
+
+            unique_lock<mutex> next_l(next_ptr->hangon);
+            next_ptr->cv.wait_for(next_l, chrono::microseconds(next_ptr->next - rtime_us()),  [&next_ptr] () {
+                return next_ptr->stop;
+            });
+
+            if (next_ptr->stop) {
+                remove(next_tc);
+            } else {
+                _asyncon.put_task(next_ptr->callback);
+                if (next_ptr->repeat) {
+                    next_ptr->next += next_ptr->time;
+                }
+                else {
+                    remove(next_tc);
                 }
             }
-            this_thread::sleep_for(chrono::microseconds(sampling));
+
         } 
     }
-
-    /**
-     * The method checks whether the time event has expired
-    */
-    bool expired(shared_ptr<timer_core> tcore) {
-        return rtime_us() - tcore->init >= tcore->time;
-    }
-
+    
     /**
      * The method deletes a non-repeating or stopped event from the stack
     */
-    void remove(const int& position) {
+    void remove(vector<shared_ptr<timer_core>>::iterator it) {
         lock_guard<mutex> lock(te_m);
-        tcores.erase(tcores.begin()+position);
-        update_sampling();
-    }
-
-    /**
-     * Updates the idle time of the loop, according to twice the frequency of available events
-    */
-    void update_sampling() {
-        if (tcores.empty()) {
-            sampling = 100;
-            return;
-        }
-        sampling = tcores[0]->time;
-        for (int i=0; i<tcores.size(); i++) {
-            if (sampling > tcores[i]->time) {
-                sampling = tcores[i]->time;
-            }
-        }
-        sampling /= tcores.size()*2;
+        tcores.erase(it);
+        te_cv.notify_one();
     }
 
     public:
@@ -155,7 +151,7 @@ class rotor {
     void insert(shared_ptr<timer_core> tcore) {
         lock_guard<mutex> lock(te_m);
         tcores.push_back(tcore);
-        update_sampling();
+        te_cv.notify_one();
     };
 
     /**

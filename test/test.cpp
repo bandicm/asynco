@@ -61,11 +61,11 @@ int main () {
 
     auto start = rtime_ms();
 
-    // // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
+    // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
-    // /**
-    //  * Init interval and timeout; clear interval and timeout
-    // */
+    /**
+     * Init interval and timeout; clear interval and timeout
+    */
 
     // interval( [&] () {
     //     cout << "interval 1: "  << rtime_ms() - start << endl;
@@ -88,17 +88,17 @@ int main () {
     //     cout << "interval 4: "  << rtime_ms() - start << endl;
     // }, 400);
 
-    // interval inter1 ([&]() {
-    //     cout << "interval prvi " << rtime_ms() - start << endl;
-    // }, 1000);
+    interval inter1 ([&]() {
+        cout << "interval prvi " << rtime_ms() - start << endl;
+    }, 1000);
 
-    // interval inter2 ([&]() {
-    //     cout << "interval drugi " << rtime_ms() - start << endl;
-    // }, 2000);
+    interval inter2 ([&]() {
+        cout << "interval drugi " << rtime_ms() - start << endl;
+    }, 2000);
 
-    // interval inter3 ([&]() {
-    //     cout << "interval treći " << rtime_ms() - start << endl;
-    // }, 3000);
+    interval inter3 ([&]() {
+        cout << "interval treći " << rtime_ms() - start << endl;
+    }, 3000);
 
     // interval inter4 ([&]() {
     //     cout << "interval cetvrti " << rtime_ms() - start << endl;
@@ -114,17 +114,18 @@ int main () {
 
     // timeout time1 ( [&] () {
     //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-    //     // inter1.clear();
+    //     inter1.clear();
     //     // cout << "inter1.stop " << inter1.stop << endl;
-    //     // inter2.clear();
+    //     inter2.clear();
     //     // cout << "inter2.stop " << inter2.stop << endl;
 
     // }, 5000);
 
+
     // timeout time2 ([&] () {
     //     cout << "Close interval 3 " << rtime_ms() - start << endl;
     //     // inter3.clear();
-    //     // time1.clear();
+    //     time1.clear();
     // }, 2000);
 
     // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
@@ -218,68 +219,68 @@ int main () {
     //     });
     // });
 
-    // --------------- EVENTS -------------------
+    // // --------------- EVENTS -------------------
 
-    /**
-     * initialization of typed events
-    */
+    // /**
+    //  * initialization of typed events
+    // */
 
-    event<int, int> ev2int;
-    event<int, string> evintString;
-    event<> evoid;
+    // event<int, int> ev2int;
+    // event<int, string> evintString;
+    // event<> evoid;
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum " << a+b << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum " << a+b << endl;
+    // });
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum done" << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum done" << endl;
+    // });
 
-    evintString.on("substract", [](int a, string b) {
-        cout << "Substract " << a-stoi(b) << endl;
-    });
+    // evintString.on("substract", [](int a, string b) {
+    //     cout << "Substract " << a-stoi(b) << endl;
+    // });
 
-    evoid.on("void", []() {
-        cout << "Void emited" << endl;
-    });
+    // evoid.on("void", []() {
+    //     cout << "Void emited" << endl;
+    // });
 
-    string emited2 = "2";
+    // string emited2 = "2";
 
-    evoid.on("void", [&]() {
-        cout << "Void emited " << emited2 << endl;
-    });
+    // evoid.on("void", [&]() {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
 
-    evoid.emit("void");
-    sleep(1);
+    // evoid.emit("void");
+    // sleep(1);
 
-    /**
-     * Emit
-    */
+    // /**
+    //  * Emit
+    // */
 
-    ev2int.emit("sum", 5, 8);
+    // ev2int.emit("sum", 5, 8);
     
 
-    sleep(1);
-    evintString.emit("substract", 3, to_string(2));
+    // sleep(1);
+    // evintString.emit("substract", 3, to_string(2));
 
-    sleep(1);
-    evoid.off("void");
-    evoid.emit("void");
+    // sleep(1);
+    // evoid.off("void");
+    // evoid.emit("void");
 
-    /**
-     * Own class 
-    */
+    // /**
+    //  * Own class 
+    // */
 
-    myOwnClass myclass;
+    // myOwnClass myclass;
 
-    timeout t( [&] {
-        myclass.emit("constructed", 1);
-    }, 200);
+    // timeout t( [&] {
+    //     myclass.emit("constructed", 1);
+    // }, 200);
 
-    myclass.on("constructed", [] (int i) {
-        cout << "Constructed " << i  << endl;
-    });
+    // myclass.on("constructed", [] (int i) {
+    //     cout << "Constructed " << i  << endl;
+    // });
 
 
 
