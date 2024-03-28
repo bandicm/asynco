@@ -175,11 +175,13 @@ class rotor {
 
 };
 
+}
+
+
 /**
  * It is intended that there is only one global declaration
 */
 static rotor _rotor;
-}
 
 /**
  * Core class for pure async timer functions
