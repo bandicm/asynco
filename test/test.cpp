@@ -1,4 +1,4 @@
-#define NUM_OF_RUNNERS 2
+// #define NUM_OF_RUNNERS 2
 
 #include "../lib/asynco.hpp"
 #include "../lib/event.hpp"
@@ -66,6 +66,14 @@ int main () {
     /**
      * Init interval and timeout; clear interval and timeout
     */
+
+    vector<interval> intervals;
+
+    for(int i=0; i<10; i++) {
+        intervals.push_back(interval( [i, &start]() {
+            cout << "interval " << i << " end: "  << rtime_ms() - start << endl;
+        }, (i%5 +1)*1000));
+    }
 
     // interval( [&] () {
     //     cout << "interval 1: "  << rtime_ms() - start << endl;
