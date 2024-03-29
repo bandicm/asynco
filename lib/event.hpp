@@ -1,15 +1,14 @@
 #ifndef _EVENT_
 #define _EVENT_
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <string>
 #include <functional>
-#include "runner.hpp"
 
 using namespace std;
 
+#include "asynco.hpp"
 namespace marcelb {
 namespace asynco {
 namespace events {
@@ -43,7 +42,7 @@ class event {
         if (it_eve != events.end()) {
             for (uint i =0; i<it_eve->second.size(); i++) {
                 auto callback = bind(it_eve->second[i], forward<Args>(args)...); 
-                _asyncon.put_task(callback);
+                atask(callback);
             }
         }
     }

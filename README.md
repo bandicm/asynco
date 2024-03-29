@@ -15,6 +15,7 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 - Event loops
 - Multiple parallel execution loops
 - Asynchronous file IO
+- Based on ASIO (Boost Asio)
 ## Installation
 
 Just download the latest release and unzip it into your project. 
@@ -24,13 +25,16 @@ Just download the latest release and unzip it into your project.
 
 #include "asynco/lib/asynco.hpp"          // atask(), wait()
 #include "asynco/lib/event.hpp"          // event
-#include "asynco/lib/rotor.hpp"          // interval, timeout
-#include "asynco/lib/runner.hpp"         // for own loop
+#include "asynco/lib/timers.hpp"          // interval, timeout
 #include "asynco/lib/filesystem.hpp"     // for async read and write files
 
 using namespace marcelb;
 using namespace asynco;
 using namespace events;
+
+// At the end of the main function, always set
+_asynco_engine.run();
+return 0;
 
 ```
 
@@ -45,7 +49,13 @@ interval inter1 ([]() {
 }, 1000);
 
 // stop interval
-inter1.clear();
+inter1.stop();
+
+// how many times it has expired
+int t = inter1.ticks();
+
+// is it stopped
+bool stoped = inter1.stoped();
 
 // start timeout
 timeout time1 ( [] () {
@@ -53,7 +63,14 @@ timeout time1 ( [] () {
 }, 10000);
 
 // stop timeout
-time1.clear();
+time1.stop();
+
+// is it expired
+int t = time1.expired();
+
+// is it stopped
+bool stoped = time1.stoped();
+
 ```
 Make functions asynchronous
 
