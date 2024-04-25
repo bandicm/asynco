@@ -1,18 +1,20 @@
-// #define NUM_OF_RUNNERS 2
+// // #define NUM_OF_RUNNERS 2
 
 #include "../lib/asynco.hpp"
 #include "../lib/event.hpp"
-#include "../lib/rotor.hpp"
 #include "../lib/filesystem.hpp"
+#include "../lib/timers.hpp"
+
+using namespace marcelb::asynco;
+using namespace events;
 
 #include <iostream>
 #include <unistd.h>
+#include <thread>
 
 using namespace std;
-using namespace marcelb::asynco;
-using namespace events;
-using namespace asynco;
 using namespace this_thread;
+
 
 void sleep_to (int _time) {
     promise<void> _promise;
@@ -63,38 +65,9 @@ int main () {
 
     // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
-    /**
-     * Init interval and timeout; clear interval and timeout
-    */
-
-    vector<interval> intervals;
-
-    for(int i=0; i<10; i++) {
-        intervals.push_back(interval( [i, &start]() {
-            cout << "interval " << i << " end: "  << rtime_ms() - start << endl;
-        }, (i%5 +1)*1000));
-    }
-
-    // interval( [&] () {
-    //     cout << "interval 1: "  << rtime_ms() - start << endl;
-    // }, 50);
-
-    // interval( [&] () {
-    //     cout << "interval 1: "  << rtime_ms() - start << endl;
-    // }, 100);
-
-    // interval( [&] () {
-    //     cout << "interval 2: " << rtime_ms() - start << endl;
-    // }, 200);
-
-    // interval( [&] () {
-    //     cout << "interval 3: " << rtime_ms() - start << endl;
-    // }, 300);
-
-
-    // interval( [&] () {
-    //     cout << "interval 4: "  << rtime_ms() - start << endl;
-    // }, 400);
+    // /**
+    //  * Init interval and timeout; clear interval and timeout
+    // */
 
     // interval inter1 ([&]() {
     //     cout << "interval prvi " << rtime_ms() - start << endl;
@@ -106,11 +79,12 @@ int main () {
 
     // interval inter3 ([&]() {
     //     cout << "interval treći " << rtime_ms() - start << endl;
-    // }, 3000);
+    // }, 1000);
 
     // interval inter4 ([&]() {
-    //     cout << "interval cetvrti " << rtime_ms() - start << endl;
-    // }, 1000);
+    //     // cout << "interval cetvrti " << rtime_ms() - start << endl;
+    //     cout << "Ticks " << inter3.ticks() << endl;
+    // }, 500);
 
     // interval inter5 ([&]() {
     //     cout << "interval peti " << rtime_ms() - start << endl;
@@ -122,18 +96,34 @@ int main () {
 
     // timeout time1 ( [&] () {
     //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-    //     // inter1.clear();
-    //     // cout << "inter1.stop " << inter1.stop << endl;
-    //     // inter2.clear();
-    //     // cout << "inter2.stop " << inter2.stop << endl;
-    // }, 5000);
+    //     inter1.stop();
+    //     cout << "inter1.stop " << endl;
+    //     inter2.stop();
+    //     cout << "inter2.stop " << endl;
+    // }, 8000);
 
 
     // timeout time2 ([&] () {
     //     cout << "Close interval 3 " << rtime_ms() - start << endl;
-    //     // inter3.clear();
-    //     time1.clear();
-    // }, 2000);
+    //     inter3.stop();
+    //     cout << "Stoped " << inter3.stoped() << endl;
+    //     // time1.stop();
+    // }, 5000);
+
+
+    // if (time2.expired()) {
+    //     cout << "isteko " << endl;
+    // } else {
+    //     cout << "nije isteko " << endl;
+    // }
+
+    // // sleep(6);
+
+    // if (time2.expired()) {
+    //     cout << "isteko " << endl;
+    // } else {
+    //     cout << "nije isteko " << endl;
+    // }
 
     // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
@@ -226,7 +216,7 @@ int main () {
     //     });
     // });
 
-    // // --------------- EVENTS -------------------
+    // // // --------------- EVENTS -------------------
 
     // /**
     //  * initialization of typed events
@@ -301,8 +291,26 @@ int main () {
     //     cout << err.what() << endl;
     // }
 
-    cout << "Sleep" << endl;
-    sleep(100000); // only for testing
+
+    // string data_;
+    // auto start_read = rtime_us();
+
+    // fs::read("test1.txt", [&data_, &start_read] (string data, exception* error) {
+    //     if (error) {
+    //         cout << "Error " << error->what() << endl;
+    //     } else {
+    //         // cout << "Data " << endl << data << endl;
+    //         // data_ = data;
+    //         // cout << "Data_" << data_ << endl;
+    //         cout << "read " << rtime_us() - start_read << endl;
+    //     }
+    // });
+
+
+    // ----------------------------------------------------------------------------------------------------
+
+    cout << "Run" << endl;
+    _asynco_engine.run();
 
     return 0;
 }

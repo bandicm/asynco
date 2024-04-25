@@ -3,13 +3,12 @@
 
 #include "asynco.hpp"
 
-
-#include <fstream>
-#include <iostream>
-
-using namespace std;
 using namespace marcelb;
 using namespace asynco;
+
+#include <fstream>
+using namespace std;
+
 
 namespace marcelb {
 namespace asynco {
