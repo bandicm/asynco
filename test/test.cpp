@@ -65,246 +65,246 @@ int main () {
 
     // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
-    // /**
-    //  * Init interval and timeout; clear interval and timeout
-    // */
+    /**
+     * Init interval and timeout; clear interval and timeout
+    */
 
-    // interval inter1 ([&]() {
-    //     cout << "interval prvi " << rtime_ms() - start << endl;
-    // }, 1000);
+    interval inter1 ([&]() {
+        cout << "interval prvi " << rtime_ms() - start << endl;
+    }, 1000);
 
-    // interval inter2 ([&]() {
-    //     cout << "interval drugi " << rtime_ms() - start << endl;
-    // }, 2000);
+    interval inter2 ([&]() {
+        cout << "interval drugi " << rtime_ms() - start << endl;
+    }, 2000);
 
-    // interval inter3 ([&]() {
-    //     cout << "interval treći " << rtime_ms() - start << endl;
-    // }, 1000);
+    interval inter3 ([&]() {
+        cout << "interval treći " << rtime_ms() - start << endl;
+    }, 1000);
 
-    // interval inter4 ([&]() {
-    //     // cout << "interval cetvrti " << rtime_ms() - start << endl;
-    //     cout << "Ticks " << inter3.ticks() << endl;
-    // }, 500);
+    interval inter4 ([&]() {
+        // cout << "interval cetvrti " << rtime_ms() - start << endl;
+        cout << "Ticks " << inter3.ticks() << endl;
+    }, 500);
 
-    // interval inter5 ([&]() {
-    //     cout << "interval peti " << rtime_ms() - start << endl;
-    // }, 2000);
+    interval inter5 ([&]() {
+        cout << "interval peti " << rtime_ms() - start << endl;
+    }, 2000);
 
-    // interval inter6 ([&]() {
-    //     cout << "interval sesti " << rtime_ms() - start << endl;
-    // }, 3000);
+    interval inter6 ([&]() {
+        cout << "interval sesti " << rtime_ms() - start << endl;
+    }, 3000);
 
-    // timeout time1 ( [&] () {
-    //     cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
-    //     inter1.stop();
-    //     cout << "inter1.stop " << endl;
-    //     inter2.stop();
-    //     cout << "inter2.stop " << endl;
-    // }, 8000);
-
-
-    // timeout time2 ([&] () {
-    //     cout << "Close interval 3 " << rtime_ms() - start << endl;
-    //     inter3.stop();
-    //     cout << "Stoped " << inter3.stoped() << endl;
-    //     // time1.stop();
-    // }, 5000);
+    timeout time1 ( [&] () {
+        cout << "Close interval 1 i 2 " << rtime_ms() - start << endl;
+        inter1.stop();
+        cout << "inter1.stop " << endl;
+        inter2.stop();
+        cout << "inter2.stop " << endl;
+    }, 8000);
 
 
-    // if (time2.expired()) {
-    //     cout << "isteko " << endl;
-    // } else {
-    //     cout << "nije isteko " << endl;
-    // }
-
-    // // sleep(6);
-
-    // if (time2.expired()) {
-    //     cout << "isteko " << endl;
-    // } else {
-    //     cout << "nije isteko " << endl;
-    // }
-
-    // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
-
-    // /**
-    //  * Run an function asyncronic
-    // */
-
-    // atask( []() {
-    //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "atask 1" << endl;
-    //     return 5;
-    // });
-
-    // /**
-    //  * Call not lambda function
-    // */
-
-    // atask (notLambdaFunction);
+    timeout time2 ([&] () {
+        cout << "Close interval 3 " << rtime_ms() - start << endl;
+        inter3.stop();
+        cout << "Stoped " << inter3.stoped() << endl;
+        // time1.stop();
+    }, 5000);
 
 
-    // wait (
-    //     atask (
-    //         notLambdaFunction
-    //     )
-    // );
+    if (time2.expired()) {
+        cout << "isteko " << endl;
+    } else {
+        cout << "nije isteko " << endl;
+    }
 
-    // /**
-    //  * Call class method
-    // */
+    // sleep(6);
 
-    // clm classes;
-    // atask( [&classes] () {
-    //     classes.classMethode();
-    // });
+    if (time2.expired()) {
+        cout << "isteko " << endl;
+    } else {
+        cout << "nije isteko " << endl;
+    }
 
-    // sleep(5);
+    // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
-    // /**
-    //  * Wait after runned as async
-    //  */
+    /**
+     * Run an function asyncronic
+    */
 
-    // auto a = atask( []() {
-    //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "atask 2" << endl;
-    //     return 5;
-    // });
+    atask( []() {
+        sleep_for(2s);   // only for simulate log duration function
+        cout << "atask 1" << endl;
+        return 5;
+    });
 
-    // cout << wait(a) << endl;
-    // cout << "print after atask 2" << endl;
+    /**
+     * Call not lambda function
+    */
 
-    // /**
-    //  * Wait async function call and use i cout
-    // */
-
-    // cout << wait(atask( [] () {
-    //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
-    //     cout << "wait end" << endl;
-    //     return 4;
-    // })) << endl;
-
-    // /**
-    //  * Sleep with timeout sleep implement
-    // */
-
-    // sleep_to(3000);
-    // cout << "sleep_to " << rtime_ms() - start << endl;
-
-    // /**
-    //  * Catch promise reject
-    // */
-
-    // try {
-    //     promise_reject(3000);
-    // } catch (runtime_error err) {
-    //     cout<< err.what() << endl;
-    // }
-
-    // cout << "promise_reject " << rtime_ms() - start << endl;
+    atask (notLambdaFunction);
 
 
-    // /**
-    //  * Nested asynchronous invocation
-    // */
+    wait (
+        atask (
+            notLambdaFunction
+        )
+    );
+
+    /**
+     * Call class method
+    */
+
+    clm classes;
+    atask( [&classes] () {
+        classes.classMethode();
+    });
+
+    sleep(5);
+
+    /**
+     * Wait after runned as async
+     */
+
+    auto a = atask( []() {
+        sleep_for(2s);   // only for simulate log duration function
+        cout << "atask 2" << endl;
+        return 5;
+    });
+
+    cout << wait(a) << endl;
+    cout << "print after atask 2" << endl;
+
+    /**
+     * Wait async function call and use i cout
+    */
+
+    cout << wait(atask( [] () {
+        sleep_for(chrono::seconds(1)); // only for simulate log duration function
+        cout << "wait end" << endl;
+        return 4;
+    })) << endl;
+
+    /**
+     * Sleep with timeout sleep implement
+    */
+
+    sleep_to(3000);
+    cout << "sleep_to " << rtime_ms() - start << endl;
+
+    /**
+     * Catch promise reject
+    */
+
+    try {
+        promise_reject(3000);
+    } catch (runtime_error err) {
+        cout<< err.what() << endl;
+    }
+
+    cout << "promise_reject " << rtime_ms() - start << endl;
 
 
-    // atask( [] {
-    //     cout << "idemo ..." << endl;
-    //     atask( [] {
-    //         cout << "ugdnježdena async funkcija " << endl;
-    //     });
-    // });
+    /**
+     * Nested asynchronous invocation
+    */
 
-    // // // --------------- EVENTS -------------------
 
-    // /**
-    //  * initialization of typed events
-    // */
+    atask( [] {
+        cout << "idemo ..." << endl;
+        atask( [] {
+            cout << "ugdnježdena async funkcija " << endl;
+        });
+    });
 
-    // event<int, int> ev2int;
-    // event<int, string> evintString;
-    // event<> evoid;
+    // // --------------- EVENTS -------------------
 
-    // ev2int.on("sum", [](int a, int b) {
-    //     cout << "Sum " << a+b << endl;
-    // });
+    /**
+     * initialization of typed events
+    */
 
-    // ev2int.on("sum", [](int a, int b) {
-    //     cout << "Sum done" << endl;
-    // });
+    event<int, int> ev2int;
+    event<int, string> evintString;
+    event<> evoid;
 
-    // evintString.on("substract", [](int a, string b) {
-    //     cout << "Substract " << a-stoi(b) << endl;
-    // });
+    ev2int.on("sum", [](int a, int b) {
+        cout << "Sum " << a+b << endl;
+    });
 
-    // evoid.on("void", []() {
-    //     cout << "Void emited" << endl;
-    // });
+    ev2int.on("sum", [](int a, int b) {
+        cout << "Sum done" << endl;
+    });
 
-    // string emited2 = "2";
+    evintString.on("substract", [](int a, string b) {
+        cout << "Substract " << a-stoi(b) << endl;
+    });
 
-    // evoid.on("void", [&]() {
-    //     cout << "Void emited " << emited2 << endl;
-    // });
+    evoid.on("void", []() {
+        cout << "Void emited" << endl;
+    });
 
-    // evoid.emit("void");
-    // sleep(1);
+    string emited2 = "2";
 
-    // /**
-    //  * Emit
-    // */
+    evoid.on("void", [&]() {
+        cout << "Void emited " << emited2 << endl;
+    });
 
-    // ev2int.emit("sum", 5, 8);
+    evoid.emit("void");
+    sleep(1);
+
+    /**
+     * Emit
+    */
+
+    ev2int.emit("sum", 5, 8);
     
 
-    // sleep(1);
-    // evintString.emit("substract", 3, to_string(2));
+    sleep(1);
+    evintString.emit("substract", 3, to_string(2));
 
-    // sleep(1);
-    // evoid.off("void");
-    // evoid.emit("void");
+    sleep(1);
+    evoid.off("void");
+    evoid.emit("void");
 
-    // /**
-    //  * Own class 
-    // */
+    /**
+     * Own class 
+    */
 
-    // myOwnClass myclass;
+    myOwnClass myclass;
 
-    // timeout t( [&] {
-    //     myclass.emit("constructed", 1);
-    // }, 200);
+    timeout t( [&] {
+        myclass.emit("constructed", 1);
+    }, 200);
 
-    // myclass.on("constructed", [] (int i) {
-    //     cout << "Constructed " << i  << endl;
-    // });
-
-
-
-    // auto status = fs::read("test1.txt");
+    myclass.on("constructed", [] (int i) {
+        cout << "Constructed " << i  << endl;
+    });
 
 
-    // try {
-    //     auto data = wait(status);
-    //     cout << data;
-    // } catch (exception& err) {
-    //     cout << err.what() << endl;
-    // }
+
+    auto status = fs::read("test1.txt");
 
 
-    // string data_;
-    // auto start_read = rtime_us();
+    try {
+        auto data = wait(status);
+        cout << data;
+    } catch (exception& err) {
+        cout << err.what() << endl;
+    }
 
-    // fs::read("test1.txt", [&data_, &start_read] (string data, exception* error) {
-    //     if (error) {
-    //         cout << "Error " << error->what() << endl;
-    //     } else {
-    //         // cout << "Data " << endl << data << endl;
-    //         // data_ = data;
-    //         // cout << "Data_" << data_ << endl;
-    //         cout << "read " << rtime_us() - start_read << endl;
-    //     }
-    // });
+
+    string data_;
+    auto start_read = rtime_us();
+
+    fs::read("test1.txt", [&data_, &start_read] (string data, exception* error) {
+        if (error) {
+            cout << "Error " << error->what() << endl;
+        } else {
+            // cout << "Data " << endl << data << endl;
+            // data_ = data;
+            // cout << "Data_" << data_ << endl;
+            cout << "read " << rtime_us() - start_read << endl;
+        }
+    });
 
 
     // ----------------------------------------------------------------------------------------------------
