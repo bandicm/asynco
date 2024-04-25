@@ -55,6 +55,33 @@ class event {
         events.erase(key);
     }
 
+    /**
+     * Remove all event listener
+    */
+    void off() {
+        lock_guard _off(m_eve);
+        events.clear();
+    }
+
+
+    /**
+     * Get num of listeners by an event key
+    */
+    unsigned int listeners(const string& key) {
+        return events[key].size();
+    }
+
+    /**
+     * Get num of all listeners
+    */
+    unsigned int listeners() {
+        unsigned int listeners = 0;
+        for (auto& ev : events) {
+            listeners += ev.second.size();
+        }
+        return listeners;
+    }
+
 
 };
 

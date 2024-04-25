@@ -1,5 +1,5 @@
-#ifndef _ROTOR_
-#define _ROTOT_
+#ifndef _TIMERS_
+#define _TIMERS_
 
 #include "asynco.hpp"
 #include <chrono>
@@ -113,22 +113,22 @@ class timer {
 };
 
 /**
- * Class interval for periodic execution of the callback in time in ms
+ * Class periodic for periodic execution of the callback in time in ms
 */
-class interval {
+class periodic {
     shared_ptr<timer> _timer;
 
     public:
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    interval(function<void()> callback, uint64_t time) : 
+    periodic(function<void()> callback, uint64_t time) : 
         _timer(make_shared<timer> (callback, time, true)) {
     }
 
     /**
-     * Stop interval
-     * The stop flag is set and interval remove it from the queue
+     * Stop periodic
+     * The stop flag is set and periodic remove it from the queue
     */
     void stop() {
         _timer->stop();
@@ -136,51 +136,51 @@ class interval {
 
     /**
      * Run callback now
-     * Forces the callback function to run independently of the interval
+     * Forces the callback function to run independently of the periodic
     */
     void now() {
         _timer->now();
     }
     
     /**
-     * Get the number of times the interval callback was runned
+     * Get the number of times the periodic callback was runned
     */
     uint64_t ticks() {
         return _timer->ticks();
     }
 
     /**
-     * The logic status of the interval stop state
+     * The logic status of the periodic stop state
     */
     bool stoped() {
         return _timer->stoped();
     }
     
     /**
-     * The destructor stops the interval
+     * The destructor stops the periodic
     */
-    ~interval() {
+    ~periodic() {
         stop();
     }
 };
 
 /**
- * Class timeout for delayed callback execution in ms
+ * Class delayed for delayed callback execution in ms
 */
-class timeout {
+class delayed {
     shared_ptr<timer> _timer;
 
     public:
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    timeout(function<void()> callback, uint64_t time) : 
+    delayed(function<void()> callback, uint64_t time) : 
         _timer(make_shared<timer> (callback, time, false)) {
     }
     
     /**
-     * Stop timeout
-     * The stop flag is set and timeout remove it from the queue
+     * Stop delayed
+     * The stop flag is set and delayed remove it from the queue
     */
     void stop() {
         _timer->stop();
@@ -188,30 +188,30 @@ class timeout {
 
     /**
      * Run callback now
-     * Forces the callback function to run independently of the timeout
+     * Forces the callback function to run independently of the delayed
     */
     void now() {
         _timer->now();
     }
 
     /**
-     * Get the number of times the timeout callback was runned
+     * Get is the delayed callback runned
     */
     bool expired() {
         return bool(_timer->ticks());
     }
 
     /**
-     * The logic status of the timeout stop state
+     * The logic status of the delayed stop state
     */
     bool stoped() {
         return _timer->stoped();
     }
 
     /**
-     * The destructor stops the timeout
+     * The destructor stops the delayed
     */
-    ~timeout() {
+    ~delayed() {
         stop();
     }
 

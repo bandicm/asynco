@@ -3,6 +3,12 @@
 
 A C++ library for event-driven asynchronous multi-threaded programming.
 
+## Motivation
+
+The original concept was to create an interface capable of asynchronously calling any function. It has since evolved into a library that incorporates a thread pool, each with its own event loop, event-driven programming, and functions inherently designed for asynchronous operation (including periodic and delayed functions).
+
+The asynchronous filesystem is provided solely to guide users on how to wrap any time- or IO-intensive function for asynchronous execution.
+
 ## Features
 
 - Object oriented
@@ -10,7 +16,7 @@ A C++ library for event-driven asynchronous multi-threaded programming.
 - Header only
 - Asynchronous programming
 - Multithread
-- Asynchronous timer functions: interval, timeout
+- Asynchronous timer functions: periodic, delayed (like setInterval and setTimeout from JS)
 - Typed events (on, emit, off)
 - Event loops
 - Multiple parallel execution loops
@@ -23,10 +29,10 @@ Just download the latest release and unzip it into your project.
 ```c++
 #define NUM_OF_RUNNERS 8                // To change the number of threads used by atask, without this it runs according to the number of cores
 
-#include "asynco/lib/asynco.hpp"          // atask(), wait()
-#include "asynco/lib/event.hpp"          // event
-#include "asynco/lib/timers.hpp"          // interval, timeout
-#include "asynco/lib/filesystem.hpp"     // for async read and write files
+#include "asynco/lib/asynco.hpp"        // atask(), wait()
+#include "asynco/lib/event.hpp"         // event
+#include "asynco/lib/timers.hpp"        // periodic, delayed (like setInterval and setTimeout from JS)
+#include "asynco/lib/filesystem.hpp"    // for async read and write files
 
 using namespace marcelb;
 using namespace asynco;
@@ -43,12 +49,12 @@ return 0;
 Time asynchronous functions
 
 ```c++
-// start interval
-interval inter1 ([]() {
+// start periodic
+periodic inter1 ([]() {
      cout << "Interval 1" << endl;
 }, 1000);
 
-// stop interval
+// stop periodic
 inter1.stop();
 
 // how many times it has expired
@@ -57,12 +63,12 @@ int t = inter1.ticks();
 // is it stopped
 bool stoped = inter1.stoped();
 
-// start timeout
-timeout time1 ( [] () {
+// start delayed
+delayed time1 ( [] () {
     cout << "Timeout 1 " << endl;
 }, 10000);
 
-// stop timeout
+// stop delayed
 time1.stop();
 
 // is it expired
@@ -137,12 +143,12 @@ cout << wait(atask( [] () {
 })) << endl;
 
 /**
-* Sleep with timeout sleep implement
+* Sleep with delayed sleep implement
 */
 
 void sleep_to (int _time) {
     promise<void> _promise;
-    timeout t( [&]() {
+    delayed t( [&]() {
         _promise.set_value();
     }, _time);
 
@@ -157,7 +163,7 @@ sleep_to(3000);
 
 void promise_reject (int _time) {
     promise<void> _promise;
-    timeout t( [&]() {
+    delayed t( [&]() {
         try {
             // simulate except
             throw runtime_error("Error simulation");
@@ -237,7 +243,7 @@ class myOwnClass : public event<int> {
 
 myOwnClass myclass;
 
-timeout t( [&] {
+delayed t( [&] {
     myclass.emit("constructed", 1);
 }, 200);
 
