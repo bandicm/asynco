@@ -17,7 +17,7 @@ The asynchronous filesystem is provided solely to guide users on how to wrap any
 - Asynchronous programming
 - Multithread
 - Asynchronous timer functions: periodic, delayed (like setInterval and setTimeout from JS)
-- Typed events (on, emit, off)
+- Typed events (on, tick, off) (like EventEmitter from JS: on, emit, etc)
 - Event loops
 - Multiple parallel execution loops
 - Asynchronous file IO
@@ -30,13 +30,13 @@ Just download the latest release and unzip it into your project.
 #define NUM_OF_RUNNERS 8                // To change the number of threads used by atask, without this it runs according to the number of cores
 
 #include "asynco/lib/asynco.hpp"        // atask(), wait()
-#include "asynco/lib/event.hpp"         // event
+#include "asynco/lib/triggers.hpp"      // trigger (event emitter)
 #include "asynco/lib/timers.hpp"        // periodic, delayed (like setInterval and setTimeout from JS)
 #include "asynco/lib/filesystem.hpp"    // for async read and write files
 
 using namespace marcelb;
 using namespace asynco;
-using namespace events;
+using namespace triggers;
 
 // At the end of the main function, always set
 _asynco_engine.run();
@@ -189,9 +189,9 @@ Events
 * initialization of typed events
 */
 
-event<int, int> ev2int;
-event<int, string> evintString;
-event<> evoid;
+trigger<int, int> ev2int;
+trigger<int, string> evintString;
+trigger<> evoid;
 
 ev2int.on("sum", [](int a, int b) {
     cout << "Sum " << a+b << endl;
@@ -219,32 +219,32 @@ sleep(1);
 * Emit
 */
 
-ev2int.emit("sum", 5, 8);
+ev2int.tick("sum", 5, 8);
 
 sleep(1);
-evintString.emit("substract", 3, to_string(2));
+evintString.tick("substract", 3, to_string(2));
 
 sleep(1);
-evoid.emit("void");
+evoid.tick("void");
 
 // Turn off the event listener
 
 evoid.off("void");
-evoid.emit("void"); // nothing is happening
+evoid.tick("void"); // nothing is happening
 
 ```
 Extend own class whit events
 
 ```c++
-class myOwnClass : public event<int> {
+class myOwnClass : public trigger<int> {
     public:
-    myOwnClass() : event() {};
+    myOwnClass() : trigger() {};
 };
 
 myOwnClass myclass;
 
 delayed t( [&] {
-    myclass.emit("constructed", 1);
+    myclass.tick("constructed", 1);
 }, 200);
 
 myclass.on("constructed", [] (int i) {
