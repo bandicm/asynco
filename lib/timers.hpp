@@ -217,6 +217,23 @@ class delayed {
 
 };
 
+delayed giveup(function<void()> callback, uint64_t time)  {
+    delayed timeout ( []() {
+        cout << "Timeout " << endl;
+        throw runtime_error("Time expired");
+    }, time);
+    _asynco_engine.io_context.post([&] () {
+        cout << "execute " << endl;
+
+        callback();
+        cout << "clear " << endl;
+        
+        timeout.stop();
+    });
+
+    return timeout;
+}
+
 }
 }
 

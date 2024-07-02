@@ -70,7 +70,9 @@ int main () {
     // */
 
     // periodic inter1 ([&]() {
-    //     cout << "periodic prvi " << rtime_ms() - start << endl;
+    //     static uint a=0;
+    //     cout << "periodic " << a++ << ", duriation: " << rtime_ms() - start << endl;
+    //     cout << "ticks " << inter1.ticks() << endl;
     // }, 1000);
 
     // periodic inter2 ([&]() {
@@ -123,6 +125,23 @@ int main () {
     //     cout << "isteko " << endl;
     // } else {
     //     cout << "nije isteko " << endl;
+    // }
+
+    // delayed timeout ( []() {
+    //     cout << "Timeout " << endl;
+    //     throw runtime_error("Time expired");
+    // }, 2000);
+
+
+    // try {
+        auto a = giveup([]() {
+            cout << "givup" << endl;
+            sleep(5);
+            cout << "return" << endl;
+
+        }, 2000);
+    // } catch (exception e) {
+    //     cout << e.what() << endl;
     // }
 
     // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
@@ -216,74 +235,74 @@ int main () {
     //     });
     // });
 
-    // --------------- EVENTS -------------------
+    // // --------------- EVENTS -------------------
 
-    /**
-     * initialization of typed events
-    */
+    // /**
+    //  * initialization of typed events
+    // */
 
-    trigger<int, int> ev2int;
-    trigger<int, string> evintString;
-    trigger<> evoid;
+    // trigger<int, int> ev2int;
+    // trigger<int, string> evintString;
+    // trigger<> evoid;
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum " << a+b << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum " << a+b << endl;
+    // });
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum done" << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum done" << endl;
+    // });
 
-    evintString.on("substract", [](int a, string b) {
-        cout << "Substract " << a-stoi(b) << endl;
-    });
+    // evintString.on("substract", [](int a, string b) {
+    //     cout << "Substract " << a-stoi(b) << endl;
+    // });
 
-    evoid.on("void", []() {
-        cout << "Void emited" << endl;
-    });
+    // evoid.on("void", []() {
+    //     cout << "Void emited" << endl;
+    // });
 
-    string emited2 = "2";
+    // string emited2 = "2";
 
-    evoid.on("void", [&]() {
-        cout << "Void emited " << emited2 << endl;
-    });
+    // evoid.on("void", [&]() {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
 
-    evoid.tick("void");
-    sleep(1);
+    // evoid.tick("void");
+    // sleep(1);
 
-    /**
-     * Emit
-    */
+    // /**
+    //  * Emit
+    // */
 
-    ev2int.tick("sum", 5, 8);
+    // ev2int.tick("sum", 5, 8);
     
 
-    sleep(1);
-    evintString.tick("substract", 3, to_string(2));
+    // sleep(1);
+    // evintString.tick("substract", 3, to_string(2));
 
-    sleep(1);
-    evoid.off("void");
-    evoid.tick("void");
+    // sleep(1);
+    // evoid.off("void");
+    // evoid.tick("void");
 
 
-    cout << "Ukupno 2 int " <<  ev2int.listeners() << endl;
-    cout << "Ukupno evintString " <<  evintString.listeners() << endl;
-    cout << "Ukupno evoid " <<  evoid.listeners() << endl;
-    cout << "Ukupno 2 int " <<  ev2int.listeners("sum") << endl;
+    // cout << "Ukupno 2 int " <<  ev2int.listeners() << endl;
+    // cout << "Ukupno evintString " <<  evintString.listeners() << endl;
+    // cout << "Ukupno evoid " <<  evoid.listeners() << endl;
+    // cout << "Ukupno 2 int " <<  ev2int.listeners("sum") << endl;
 
-    /**
-     * Own class 
-    */
+    // /**
+    //  * Own class 
+    // */
 
-    myOwnClass myclass;
+    // myOwnClass myclass;
 
-    delayed t( [&] {
-        myclass.tick("constructed", 1);
-    }, 200);
+    // delayed t( [&] {
+    //     myclass.tick("constructed", 1);
+    // }, 200);
 
-    myclass.on("constructed", [] (int i) {
-        cout << "Constructed " << i  << endl;
-    });
+    // myclass.on("constructed", [] (int i) {
+    //     cout << "Constructed " << i  << endl;
+    // });
 
 
 
