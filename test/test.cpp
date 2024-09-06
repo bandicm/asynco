@@ -4,6 +4,7 @@
 #include "../lib/trigger.hpp"
 #include "../lib/filesystem.hpp"
 #include "../lib/timers.hpp"
+#include "../lib/define.hpp"
 
 using namespace marcelb::asynco;
 using namespace triggers;
@@ -11,9 +12,11 @@ using namespace triggers;
 #include <iostream>
 #include <unistd.h>
 #include <thread>
+#include <future>
 
 using namespace std;
 using namespace this_thread;
+
 
 
 void sleep_to (int _time) {
@@ -131,31 +134,35 @@ int main () {
     //  * Run an function asyncronic
     // */
 
-    // atask( []() {
-    //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "atask 1" << endl;
-    //     return 5;
+    nonsync ( []() {
+        sleep_for(2s);   // only for simulate log duration function
+        cout << "asynco 1" << endl;
+        return 5;
+    });
+
+    /**
+     * Call not lambda function
+    */
+
+    nonsync (notLambdaFunction);
+
+
+    wait (
+        nonsync (
+            notLambdaFunction
+        )
+    );
+
+    // async(launch::async, [] () {
+    //     cout << "Another thread in async style!"  << endl;
     // });
-
-    // /**
-    //  * Call not lambda function
-    // */
-
-    // atask (notLambdaFunction);
-
-
-    // wait (
-    //     atask (
-    //         notLambdaFunction
-    //     )
-    // );
 
     // /**
     //  * Call class method
     // */
 
     // clm classes;
-    // atask( [&classes] () {
+    // asynco( [&classes] () {
     //     classes.classMethode();
     // });
 
@@ -165,20 +172,20 @@ int main () {
     //  * Wait after runned as async
     //  */
 
-    // auto a = atask( []() {
+    // auto a = asynco( []() {
     //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "atask 2" << endl;
+    //     cout << "asynco 2" << endl;
     //     return 5;
     // });
 
     // cout << wait(a) << endl;
-    // cout << "print after atask 2" << endl;
+    // cout << "print after asynco 2" << endl;
 
     // /**
     //  * Wait async function call and use i cout
     // */
 
-    // cout << wait(atask( [] () {
+    // cout << wait(asynco( [] () {
     //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
     //     cout << "wait end" << endl;
     //     return 4;
@@ -209,9 +216,9 @@ int main () {
     // */
 
 
-    // atask( [] {
+    // asynco( [] {
     //     cout << "idemo ..." << endl;
-    //     atask( [] {
+    //     asynco( [] {
     //         cout << "ugdnježdena async funkcija " << endl;
     //     });
     // });
@@ -222,68 +229,68 @@ int main () {
      * initialization of typed events
     */
 
-    trigger<int, int> ev2int;
-    trigger<int, string> evintString;
-    trigger<> evoid;
+    // trigger<int, int> ev2int;
+    // trigger<int, string> evintString;
+    // trigger<> evoid;
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum " << a+b << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum " << a+b << endl;
+    // });
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum done" << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum done" << endl;
+    // });
 
-    evintString.on("substract", [](int a, string b) {
-        cout << "Substract " << a-stoi(b) << endl;
-    });
+    // evintString.on("substract", [](int a, string b) {
+    //     cout << "Substract " << a-stoi(b) << endl;
+    // });
 
-    evoid.on("void", []() {
-        cout << "Void emited" << endl;
-    });
+    // evoid.on("void", []() {
+    //     cout << "Void emited" << endl;
+    // });
 
-    string emited2 = "2";
+    // string emited2 = "2";
 
-    evoid.on("void", [&]() {
-        cout << "Void emited " << emited2 << endl;
-    });
+    // evoid.on("void", [&]() {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
 
-    evoid.tick("void");
-    sleep(1);
+    // evoid.tick("void");
+    // sleep(1);
 
-    /**
-     * Emit
-    */
+    // /**
+    //  * Emit
+    // */
 
-    ev2int.tick("sum", 5, 8);
+    // ev2int.tick("sum", 5, 8);
     
 
-    sleep(1);
-    evintString.tick("substract", 3, to_string(2));
+    // sleep(1);
+    // evintString.tick("substract", 3, to_string(2));
 
-    sleep(1);
-    evoid.off("void");
-    evoid.tick("void");
+    // sleep(1);
+    // evoid.off("void");
+    // evoid.tick("void");
 
 
-    cout << "Ukupno 2 int " <<  ev2int.listeners() << endl;
-    cout << "Ukupno evintString " <<  evintString.listeners() << endl;
-    cout << "Ukupno evoid " <<  evoid.listeners() << endl;
-    cout << "Ukupno 2 int " <<  ev2int.listeners("sum") << endl;
+    // cout << "Ukupno 2 int " <<  ev2int.listeners() << endl;
+    // cout << "Ukupno evintString " <<  evintString.listeners() << endl;
+    // cout << "Ukupno evoid " <<  evoid.listeners() << endl;
+    // cout << "Ukupno 2 int " <<  ev2int.listeners("sum") << endl;
 
-    /**
-     * Own class 
-    */
+    // /**
+    //  * Own class 
+    // */
 
-    myOwnClass myclass;
+    // myOwnClass myclass;
 
-    delayed t( [&] {
-        myclass.tick("constructed", 1);
-    }, 200);
+    // delayed t( [&] {
+    //     myclass.tick("constructed", 1);
+    // }, 200);
 
-    myclass.on("constructed", [] (int i) {
-        cout << "Constructed " << i  << endl;
-    });
+    // myclass.on("constructed", [] (int i) {
+    //     cout << "Constructed " << i  << endl;
+    // });
 
 
 

@@ -27,9 +27,9 @@ The asynchronous filesystem is provided solely to guide users on how to wrap any
 Just download the latest release and unzip it into your project. 
 
 ```c++
-#define NUM_OF_RUNNERS 8                // To change the number of threads used by atask, without this it runs according to the number of cores
+#define NUM_OF_RUNNERS 8                // To change the number of threads used by asynco, without this it runs according to the number of cores
 
-#include "asynco/lib/asynco.hpp"        // atask(), wait()
+#include "asynco/lib/asynco.hpp"        // asynco(), wait()
 #include "asynco/lib/triggers.hpp"      // trigger (event emitter)
 #include "asynco/lib/timers.hpp"        // periodic, delayed (like setInterval and setTimeout from JS)
 #include "asynco/lib/filesystem.hpp"    // for async read and write files
@@ -85,9 +85,9 @@ Make functions asynchronous
 * Run an lambda function asynchronously
 */
 
-atask( []() {
+asynco( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "atask" << endl;
+    cout << "asynco" << endl;
     return 5;
 });
 
@@ -100,7 +100,7 @@ void notLambdaFunction() {
     cout << "Call to not lambda function" << endl;
 }
 
-atask (notLambdaFunction);
+asynco (notLambdaFunction);
 
 /**
  * Run class method
@@ -114,7 +114,7 @@ class clm {
 };
 
 clm classes;
-atask( [&classes] () {
+asynco( [&classes] () {
     classes.classMethode();
 });
 
@@ -124,9 +124,9 @@ atask( [&classes] () {
 * Wait after runned as async
 */
 
-auto a = atask( []() {
+auto a = asynco( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "atask" << endl;
+    cout << "asynco" << endl;
     return 5;
 });
 
@@ -136,7 +136,7 @@ cout << wait(a) << endl;
 * Wait async function call and use i cout
 */
 
-cout << wait(atask( [] () {
+cout << wait(asynco( [] () {
     sleep_for(chrono::seconds(1)); // only for simulating long duration function
     cout << "wait end" << endl;
     return 4;

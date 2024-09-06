@@ -59,7 +59,7 @@ class {
  * Run the function asynchronously
 */
 template<class F, class... Args>
-auto atask(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
+auto nonsync(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
     using return_type = typename result_of<F(Args...)>::type;
     future<return_type> res = _asynco_engine.io_context.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
     return res;

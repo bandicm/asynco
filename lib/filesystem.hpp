@@ -19,7 +19,7 @@ namespace fs {
 */
 template<typename Callback>
 void read(string path, Callback&& callback) {
-    atask( [&path, callback] () {
+    asynco::nonsync( [&path, callback] () {
         string content;
         try {
             string line;
@@ -48,7 +48,7 @@ void read(string path, Callback&& callback) {
  * Asynchronous file reading
 */
 future<string> read(string path) {
-    return atask( [&path] () {
+    return asynco::nonsync( [&path] () {
         string content;
         string line;
         ifstream file (path);
@@ -72,7 +72,7 @@ future<string> read(string path) {
 */
 template<typename Callback>
 void write(string path, string content, Callback&& callback) {
-    atask( [&path, &content, callback] () {
+    asynco::nonsync( [&path, &content, callback] () {
         try {
             ofstream file (path);
             if (file.is_open()) {
@@ -95,7 +95,7 @@ void write(string path, string content, Callback&& callback) {
  * Asynchronous file writing with callback after write complete
 */
 future<void> write(string path, string content) {
-    return atask( [&path, &content] () {
+    return asynco::nonsync( [&path, &content] () {
         ofstream file (path);
         if (file.is_open()) {
             file << content;
