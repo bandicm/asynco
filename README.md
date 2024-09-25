@@ -85,9 +85,9 @@ Make functions asynchronous
 * Run an lambda function asynchronously
 */
 
-asynco( []() {
+nonsync ( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "nonsync " << endl;
     return 5;
 });
 
@@ -100,7 +100,7 @@ void notLambdaFunction() {
     cout << "Call to not lambda function" << endl;
 }
 
-asynco (notLambdaFunction);
+nonsync  (notLambdaFunction);
 
 /**
  * Run class method
@@ -114,7 +114,7 @@ class clm {
 };
 
 clm classes;
-asynco( [&classes] () {
+nonsync ( [&classes] () {
     classes.classMethode();
 });
 
@@ -124,9 +124,9 @@ asynco( [&classes] () {
 * Wait after runned as async
 */
 
-auto a = asynco( []() {
+auto a = nonsync ( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "nonsync " << endl;
     return 5;
 });
 
@@ -136,7 +136,7 @@ cout << wait(a) << endl;
 * Wait async function call and use i cout
 */
 
-cout << wait(asynco( [] () {
+cout << wait(nonsync ( [] () {
     sleep_for(chrono::seconds(1)); // only for simulating long duration function
     cout << "wait end" << endl;
     return 4;
