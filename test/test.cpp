@@ -13,6 +13,7 @@ using namespace triggers;
 #include <unistd.h>
 #include <thread>
 #include <future>
+#include <vector>
 
 using namespace std;
 using namespace this_thread;
@@ -134,24 +135,25 @@ int main () {
     //  * Run an function asyncronic
     // */
 
-    async_ ( []() {
-        sleep_for(2s);   // only for simulate log duration function
-        cout << "asynco 1" << endl;
-        return 5;
-    });
+    // async_ ( []() {
+    //     sleep_for(2s);   // only for simulate log duration function
+    //     cout << "asynco 1" << endl;
+    //     return 5;
+    // });
 
-    /**
-     * Call not lambda function
-    */
+    // /**
+    //  * Call not lambda function
+    // */
 
-    async_ (notLambdaFunction);
+    // async_ (notLambdaFunction);
 
 
-    await_ (
-        async_ (
-            notLambdaFunction
-        )
-    );
+    // await_ (
+    //     async_ (
+    //         notLambdaFunction
+    //     )
+    // );
+
 
     // async(launch::async, [] () {
     //     cout << "Another thread in async style!"  << endl;
@@ -162,7 +164,7 @@ int main () {
     // */
 
     // clm classes;
-    // asynco( [&classes] () {
+    // async_ ( [&classes] () {
     //     classes.classMethode();
     // });
 
@@ -172,20 +174,20 @@ int main () {
     //  * await_ after runned as async
     //  */
 
-    // auto a = asynco( []() {
+    // auto a = async_ ( []() {
     //     sleep_for(2s);   // only for simulate log duration function
-    //     cout << "asynco 2" << endl;
+    //     cout << "async_  2" << endl;
     //     return 5;
     // });
 
     // cout << await_(a) << endl;
-    // cout << "print after asynco 2" << endl;
+    // cout << "print after async_  2" << endl;
 
     // /**
     //  * await_ async function call and use i cout
     // */
 
-    // cout << await_(asynco( [] () {
+    // cout << await_(async_ ( [] () {
     //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
     //     cout << "await_ end" << endl;
     //     return 4;
@@ -216,12 +218,64 @@ int main () {
     // */
 
 
-    // asynco( [] {
+    // async_ ( [] {
     //     cout << "idemo ..." << endl;
-    //     asynco( [] {
+    //     async_ ( [] {
     //         cout << "ugdnježdena async funkcija " << endl;
     //     });
     // });
+
+
+    // // -------------------------- AWAIT ALL ----------------------------------
+
+    // auto a = async_ ( []() {
+    //     cout << "A" << endl;
+    //     return 3;
+    // });
+
+    // auto b = async_ ( []() {
+    //     cout << "B" << endl;
+    //     throw runtime_error("Test exception");
+    //     return;
+    // });
+
+    // auto c = async_ ( []() {
+    //     cout << "C" << endl;
+    //     return "Hello";
+    // });
+
+    // int a_;
+    // string c_;
+
+    // auto await_all = [&] () {
+    //     a_ = await_(a);
+    //     await_(b);
+    //     c_ = await_(c);
+    // };
+
+    // try {
+    //     await_all();
+    //     cout << "a_ " << a_ << " c_ " << c_ << endl;
+    // } catch (const exception& exc) {
+    //     cout << exc.what() << endl;
+    // }
+
+    // // //  same type 
+
+    // vector<future<void>> fut_vec;
+    // for (int i=0; i<5; i++) {
+    //     fut_vec.push_back(
+    //         async_ ( [i]() {
+    //             cout << "Async_ " << i << endl;
+    //         })
+    //     );
+    // }
+
+    // auto await_all = [&] () {
+    //     for (int i=0; i<fut_vec.size(); i++) {
+    //         await_ (fut_vec[i]);
+    //     }
+    // };
 
     // --------------- EVENTS -------------------
 

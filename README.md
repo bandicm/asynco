@@ -142,6 +142,60 @@ cout << await_(async_ ( [] () {
     return 4;
 })) << endl;
 
+
+/**
+ *  Await all
+ **/
+
+    auto a = async_ ( []() {
+        cout << "A" << endl;
+        return 3;
+    });
+
+    auto b = async_ ( []() {
+        cout << "B" << endl;
+        throw runtime_error("Test exception");
+        return;
+    });
+
+    auto c = async_ ( []() {
+        cout << "C" << endl;
+        return "Hello";
+    });
+
+    int a_;
+    string c_;
+
+    auto await_all = [&] () {
+        a_ = await_(a);
+        await_(b);
+        c_ = await_(c);
+    };
+
+    try {
+        await_all();
+        cout << "a_ " << a_ << " c_ " << c_ << endl;
+    } catch (const exception& exc) {
+        cout << exc.what() << endl;
+    }
+
+    // //  same type 
+
+    vector<future<void>> fut_vec;
+    for (int i=0; i<5; i++) {
+        fut_vec.push_back(
+            async_ ( [i]() {
+                cout << "Async_ " << i << endl;
+            })
+        );
+    }
+
+    auto await_all = [&] () {
+        for (int i=0; i<fut_vec.size(); i++) {
+            await_ (fut_vec[i]);
+        }
+    };
+
 /**
 * Sleep with delayed sleep implement
 */
