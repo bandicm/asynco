@@ -11,7 +11,6 @@ namespace asynco {
 
 #define HW_CONCURRENCY_MINIMAL 4
 
-
 /**
  * Internal anonymous class for initializing the ASIO context and thread pool
  * !!! It is anonymous to protect against use in the initialization of other objects of the same type !!!
@@ -59,7 +58,7 @@ class {
  * Run the function asynchronously
 */
 template<class F, class... Args>
-auto nonsync(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
+auto async_(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
     using return_type = typename result_of<F(Args...)>::type;
     future<return_type> res = _asynco_engine.io_context.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
     return res;
@@ -69,7 +68,7 @@ auto nonsync(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::ty
  * Block until the asynchronous call completes
 */
 template<typename T>
-T wait(future<T>& r) {
+T await_(future<T>& r) {
     return r.get();
 }
 
@@ -77,7 +76,7 @@ T wait(future<T>& r) {
  * Block until the asynchronous call completes
 */
 template<typename T>
-T wait(future<T>&& r) {
+T await_(future<T>&& r) {
     return move(r).get();
 }
 

@@ -42,7 +42,7 @@ class trigger {
         if (it_eve != triggers.end()) {
             for (uint i =0; i<it_eve->second.size(); i++) {
                 auto callback = bind(it_eve->second[i], forward<Args>(args)...); 
-                asynco::nonsync(callback);
+                asynco::async_(callback);
             }
         }
     }

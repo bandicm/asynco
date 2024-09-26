@@ -134,7 +134,7 @@ int main () {
     //  * Run an function asyncronic
     // */
 
-    nonsync ( []() {
+    async_ ( []() {
         sleep_for(2s);   // only for simulate log duration function
         cout << "asynco 1" << endl;
         return 5;
@@ -144,11 +144,11 @@ int main () {
      * Call not lambda function
     */
 
-    nonsync (notLambdaFunction);
+    async_ (notLambdaFunction);
 
 
-    wait (
-        nonsync (
+    await_ (
+        async_ (
             notLambdaFunction
         )
     );
@@ -169,7 +169,7 @@ int main () {
     // sleep(5);
 
     // /**
-    //  * Wait after runned as async
+    //  * await_ after runned as async
     //  */
 
     // auto a = asynco( []() {
@@ -178,16 +178,16 @@ int main () {
     //     return 5;
     // });
 
-    // cout << wait(a) << endl;
+    // cout << await_(a) << endl;
     // cout << "print after asynco 2" << endl;
 
     // /**
-    //  * Wait async function call and use i cout
+    //  * await_ async function call and use i cout
     // */
 
-    // cout << wait(asynco( [] () {
+    // cout << await_(asynco( [] () {
     //     sleep_for(chrono::seconds(1)); // only for simulate log duration function
-    //     cout << "wait end" << endl;
+    //     cout << "await_ end" << endl;
     //     return 4;
     // })) << endl;
 
@@ -298,7 +298,7 @@ int main () {
 
 
     // try {
-    //     auto data = wait(status);
+    //     auto data = await_(status);
     //     cout << data;
     // } catch (exception& err) {
     //     cout << err.what() << endl;

@@ -29,7 +29,7 @@ Just download the latest release and unzip it into your project.
 ```c++
 #define NUM_OF_RUNNERS 8                // To change the number of threads used by asynco, without this it runs according to the number of cores
 
-#include "asynco/lib/asynco.hpp"        // asynco(), wait()
+#include "asynco/lib/asynco.hpp"        // async_ (), await_()
 #include "asynco/lib/triggers.hpp"      // trigger (event emitter)
 #include "asynco/lib/timers.hpp"        // periodic, delayed (like setInterval and setTimeout from JS)
 #include "asynco/lib/filesystem.hpp"    // for async read and write files
@@ -85,7 +85,7 @@ Make functions asynchronous
 * Run an lambda function asynchronously
 */
 
-asynco( []() {
+async_ ( []() {
     sleep_for(2s);   // only for simulating long duration function
     cout << "asynco" << endl;
     return 5;
@@ -100,7 +100,7 @@ void notLambdaFunction() {
     cout << "Call to not lambda function" << endl;
 }
 
-asynco (notLambdaFunction);
+async_ (notLambdaFunction);
 
 /**
  * Run class method
@@ -114,31 +114,31 @@ class clm {
 };
 
 clm classes;
-asynco( [&classes] () {
+async_ ( [&classes] () {
     classes.classMethode();
 });
 
 
 
 /**
-* Wait after runned as async
+* await_ after runned as async
 */
 
-auto a = asynco( []() {
+auto a = async_ ( []() {
     sleep_for(2s);   // only for simulating long duration function
     cout << "asynco" << endl;
     return 5;
 });
 
-cout << wait(a) << endl;
+cout << await_(a) << endl;
 
 /**
-* Wait async function call and use i cout
+* await_ async function call and use i cout
 */
 
-cout << wait(asynco( [] () {
+cout << await_(async_ ( [] () {
     sleep_for(chrono::seconds(1)); // only for simulating long duration function
-    cout << "wait end" << endl;
+    cout << "await_ end" << endl;
     return 4;
 })) << endl;
 
@@ -279,7 +279,7 @@ fs::write("test1.txt", "Hello world", [] (exception* error) {
 auto future_data = fs::read("test.txt");
 
 try {
-    string data = wait(future_data);
+    string data = await_(future_data);
 } catch (exception& err) {
     cout << err.what() << endl;
 }
@@ -287,7 +287,7 @@ try {
 auto future_status = fs::write("test.txt", "Hello world");
 
 try {
-    wait(future_status);
+    await_(future_status);
 } catch (exception& err) {
     cout << err.what() << endl;
 }

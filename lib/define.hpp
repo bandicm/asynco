@@ -8,8 +8,8 @@ namespace asynco {
  * Alternative names of functions - mostly for the sake of more beautiful coloring of the code
  */
 
-#define nonsync marcelb::asynco::nonsync
-#define wait marcelb::asynco::wait
+#define async_ marcelb::asynco::async_
+#define await_ marcelb::asynco::await_
 
 }
 }
