@@ -87,7 +87,7 @@ Make functions asynchronous
 
 async_ ( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "nonsync " << endl;
     return 5;
 });
 
@@ -126,7 +126,7 @@ async_ ( [&classes] () {
 
 auto a = async_ ( []() {
     sleep_for(2s);   // only for simulating long duration function
-    cout << "asynco" << endl;
+    cout << "nonsync " << endl;
     return 5;
 });
 
