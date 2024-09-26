@@ -15,21 +15,13 @@ namespace asynco {
  * Get the time in ms from the epoch
 */
 
-int64_t rtime_ms() {
-    return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now()
-        .time_since_epoch())
-        .count();
-}
+int64_t rtime_ms();
 
 /**
  * Get the time in us from the epoch
 */
 
-int64_t rtime_us() {
-    return chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now()
-        .time_since_epoch())
-        .count();
-}
+int64_t rtime_us();
 
 /**
  * Core timer class for construct time async functions
@@ -45,71 +37,40 @@ class timer {
     /**
      * A method to assign a callback wrapper and a reinitialization algorithm
     */
-    void init() {
-        st.async_wait( [this] (const boost::system::error_code&) {
-            if (!_stop) {
-                callback();
-                if (repeate) {
-                    st = boost::asio::steady_timer(_asynco_engine.io_context, boost::asio::chrono::milliseconds(time));
-                    init();
-                }
-                _ticks++;
-            }
-        });
-    }
+    void init();
    
     public:
 
     /**
      * The constructor creates the steady_timer and accompanying variables and runs a method to initialize the timer
     */
-    timer (function<void()> _callback, uint64_t _time, bool _repeate) :
-        st(_asynco_engine.io_context, boost::asio::chrono::milliseconds(_time)),
-        _stop(false),
-        repeate(_repeate),
-        callback(_callback),
-        time(_time) {
-            
-        init();
-    }
+    timer (function<void()> _callback, uint64_t _time, bool _repeate);
 
     /**
      * Stop timer
      * The stop flag is set and timer remove it from the queue
     */
-    void stop() {
-        _stop = true;
-        st.cancel();
-    }
+    void stop();
     
     /**
      * Run callback now
      * Forces the callback function to run independently of the timer
     */
-    void now() {
-        st.cancel();
-    }
+    void now();
 
     /**
      * Get the number of times the timer callback was runned
     */
-    uint64_t ticks() {
-        return _ticks;
-    }
+    uint64_t ticks();
 
     /**
      * The logic status of the timer stop state
     */
-    bool stoped() {
-        return _stop;
-    }
-
+    bool stoped();
     /**
      * The destructor stops the timer
     */
-    ~timer() {
-        stop();
-    }
+    ~timer();
 };
 
 /**
@@ -119,49 +80,37 @@ class periodic {
     shared_ptr<timer> _timer;
 
     public:
+
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    periodic(function<void()> callback, uint64_t time) : 
-        _timer(make_shared<timer> (callback, time, true)) {
-    }
+    periodic(function<void()> callback, uint64_t time);
 
     /**
      * Stop periodic
      * The stop flag is set and periodic remove it from the queue
     */
-    void stop() {
-        _timer->stop();
-    }
+    void stop();
 
     /**
      * Run callback now
      * Forces the callback function to run independently of the periodic
     */
-    void now() {
-        _timer->now();
-    }
+    void now();
     
     /**
      * Get the number of times the periodic callback was runned
     */
-    uint64_t ticks() {
-        return _timer->ticks();
-    }
-
+    uint64_t ticks();
     /**
      * The logic status of the periodic stop state
     */
-    bool stoped() {
-        return _timer->stoped();
-    }
+    bool stoped();
     
     /**
      * The destructor stops the periodic
     */
-    ~periodic() {
-        stop();
-    }
+    ~periodic();
 };
 
 /**
@@ -171,49 +120,36 @@ class delayed {
     shared_ptr<timer> _timer;
 
     public:
+
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    delayed(function<void()> callback, uint64_t time) : 
-        _timer(make_shared<timer> (callback, time, false)) {
-    }
+    delayed(function<void()> callback, uint64_t time);
     
     /**
      * Stop delayed
      * The stop flag is set and delayed remove it from the queue
     */
-    void stop() {
-        _timer->stop();
-    }
+    void stop();
 
     /**
      * Run callback now
      * Forces the callback function to run independently of the delayed
     */
-    void now() {
-        _timer->now();
-    }
+    void now();
 
     /**
      * Get is the delayed callback runned
     */
-    bool expired() {
-        return bool(_timer->ticks());
-    }
-
+    bool expired();
     /**
      * The logic status of the delayed stop state
     */
-    bool stoped() {
-        return _timer->stoped();
-    }
-
+    bool stoped();
     /**
      * The destructor stops the delayed
     */
-    ~delayed() {
-        stop();
-    }
+    ~delayed();
 
 };
 
