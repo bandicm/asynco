@@ -77,6 +77,28 @@ int t = time1.expired();
 // is it stopped
 bool stoped = time1.stoped();
 
+// If you don't want to save in a variable, but you want to start a timer, use these functions
+// And you can also save them, they are only of the shared pointer type
+
+auto d = Delayed( [](){
+    cout << "Delayed" << endl;
+}, 2000);
+
+auto p = Periodic( [](){
+    cout << "Periodic" << endl;
+}, 700);
+
+Periodic( [&] (){
+    cout << "Delayed expire " << d->expired() << endl;
+    cout << "Periodic ticks " << p->ticks() << endl;
+    cout << "Delayed stoped " << d->stoped() << endl;
+    cout << "Periodic stoped " << p->stoped() << endl;
+}, 1000);
+
+Delayed( [&](){
+    p->stop();
+}, 10000);
+
 ```
 Make functions asynchronous
 

@@ -69,9 +69,9 @@ int main () {
 
     // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
-    // /**
-    //  * Init periodic and delayed; clear periodic and delayed
-    // */
+    /**
+     * Init periodic and delayed; clear periodic and delayed
+    */
 
     // periodic inter1 ([&]() {
     //     cout << "periodic prvi " << rtime_ms() - start << endl;
@@ -129,11 +129,30 @@ int main () {
     //     cout << "nije isteko " << endl;
     // }
 
-    // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
+    // auto d = Delayed( [](){
+    //     cout << "Delayed" << endl;
+    // }, 2000);
 
-    // /**
-    //  * Run an function asyncronic
-    // */
+    // auto p = Periodic( [](){
+    //     cout << "Periodic" << endl;
+    // }, 700);
+
+    // Periodic( [&] (){
+    //     cout << "Delayed expire " << d->expired() << endl;
+    //     cout << "Periodic ticks " << p->ticks() << endl;
+    //     cout << "Delayed stoped " << d->stoped() << endl;
+    //     cout << "Periodic stoped " << p->stoped() << endl;
+    // }, 1000);
+
+    // Delayed( [&](){
+    //     p->stop();
+    // }, 10000);
+
+    // // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
+
+    // // /**
+    // //  * Run an function asyncronic
+    // // */
 
     // async_ ( []() {
     //     sleep_for(2s);   // only for simulate log duration function
@@ -155,13 +174,13 @@ int main () {
     // );
 
 
-    // async(launch::async, [] () {
-    //     cout << "Another thread in async style!"  << endl;
-    // });
+    // // async(launch::async, [] () {
+    // //     cout << "Another thread in async style!"  << endl;
+    // // });
 
-    // /**
-    //  * Call class method
-    // */
+    // // /**
+    // //  * Call class method
+    // // */
 
     // clm classes;
     // async_ ( [&classes] () {
@@ -170,17 +189,17 @@ int main () {
 
     // sleep(5);
 
-    // /**
-    //  * await_ after runned as async
-    //  */
+    // // /**
+    // //  * await_ after runned as async
+    // //  */
 
-    // auto a = async_ ( []() {
+    // auto aa = async_ ( []() {
     //     sleep_for(2s);   // only for simulate log duration function
     //     cout << "async_  2" << endl;
     //     return 5;
     // });
 
-    // cout << await_(a) << endl;
+    // cout << await_(aa) << endl;
     // cout << "print after async_  2" << endl;
 
     // /**
@@ -271,17 +290,19 @@ int main () {
     //     );
     // }
 
-    // auto await_all = [&] () {
+    // auto await_all2 = [&] () {
     //     for (int i=0; i<fut_vec.size(); i++) {
     //         await_ (fut_vec[i]);
     //     }
     // };
 
-    // --------------- EVENTS -------------------
+    // await_all2();
 
-    /**
-     * initialization of typed events
-    */
+    // // --------------- EVENTS -------------------
+
+    // /**
+    //  * initialization of typed events
+    // */
 
     // trigger<int, int> ev2int;
     // trigger<int, string> evintString;

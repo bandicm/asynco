@@ -1,5 +1,5 @@
-#ifndef _TRIGGER_
-#define _TRIGGER_
+#ifndef _ASYNCO_TRIGGER_
+#define _ASYNCO_TRIGGER_
 
 #include <map>
 #include <vector>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#include "asynco.hpp"
+#include "engine.hpp"
 namespace marcelb {
 namespace asynco {
 namespace triggers {

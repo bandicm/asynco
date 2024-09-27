@@ -106,4 +106,40 @@ delayed::~delayed() {
     stop();
 }
 
+mutex p_io, d_io;
+vector<shared_ptr<periodic>> periodic_calls_container;
+vector<shared_ptr<delayed>> delayed_calls_container;
+
+shared_ptr<periodic> Periodic(function<void()> callback, uint64_t time) {
+    shared_ptr<periodic> periodic_ptr(make_shared<periodic>(callback, time));
+    async_ ( [&, periodic_ptr](){
+        lock_guard<mutex> lock(p_io);
+        periodic_calls_container.push_back(periodic_ptr);
+        for (uint32_t i=0; i<periodic_calls_container.size(); i++) {
+            if (periodic_calls_container[i]->stoped()) {
+                periodic_calls_container.erase(periodic_calls_container.begin()+i);
+                i--;
+            }
+        }
+    });
+    return periodic_ptr;
+}
+
+shared_ptr<delayed> Delayed(function<void()> callback, uint64_t time) {
+    shared_ptr<delayed> delayed_ptr(make_shared<delayed>(callback, time));
+    async_ ( [&, delayed_ptr](){
+        lock_guard<mutex> lock(p_io);
+        delayed_calls_container.push_back(delayed_ptr);
+        for (uint32_t i=0; i<delayed_calls_container.size(); i++) {
+            if (delayed_calls_container[i]->stoped() || delayed_calls_container[i]->expired()) {
+                delayed_calls_container.erase(delayed_calls_container.begin()+i);
+                i--;
+            }
+        }
+    });
+    return delayed_ptr;
+}
+
+
+
 };

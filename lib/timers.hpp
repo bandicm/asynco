@@ -1,12 +1,10 @@
-#ifndef _TIMERS_
-#define _TIMERS_
+#ifndef _ASYNCO_TIMERS_
+#define _ASYNCO_TIMERS_
+
+#include <chrono>
+using namespace std;
 
 #include "asynco.hpp"
-#include <chrono>
-
-using namespace std;
-using namespace marcelb;
-using namespace asynco;
 
 namespace marcelb {
 namespace asynco {
@@ -152,6 +150,10 @@ class delayed {
     ~delayed();
 
 };
+
+shared_ptr<periodic> Periodic(function<void()> callback, uint64_t time);
+shared_ptr<delayed> Delayed(function<void()> callback, uint64_t time);
+
 
 }
 }
