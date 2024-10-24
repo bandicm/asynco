@@ -35,6 +35,28 @@ T await_(future<T>&& r) {
     return move(r).get();
 }
 
+/**
+ * Block until the asynchronous call completes or time expired
+*/
+template<typename T>
+T await_(future<T>& r, uint64_t time) {
+    if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
+        throw runtime_error("Asynchronous execution timed out");
+    }
+    return r.get();
+}
+
+/**
+ * Block until the asynchronous call completes or time expired
+*/
+template<typename T>
+T await_(future<T>&& r, uint64_t time) {
+     if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
+        throw runtime_error("Asynchronous execution timed out");
+    } 
+    return move(r).get();
+}
+
 }
 }
 
