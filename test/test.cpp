@@ -62,6 +62,37 @@ class myOwnClass : public trigger<int> {
     myOwnClass() : trigger() {};
 };
 
+// ----------------- MULTIPLE TRIGGERS IN ONE CLASS ------------------
+
+class ClassWithTriggers {
+    trigger<int> emitter1;
+    trigger<string> emitter2;
+
+public:
+    template<typename... T>
+    void on(const string& key, function<void(T...)> callback) {
+        if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, int>) {
+            emitter1.on(key, callback);
+        }
+        else if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, string>) {
+            emitter2.on(key, callback);
+        }
+    }
+
+    template <typename... Args>
+    void tick(const string& key, Args&&... args) {
+        if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, int>) {
+            emitter1.tick(key, forward<Args>(args)...);
+        }
+        else if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, string>) {
+            emitter2.tick(key, forward<Args>(args)...);
+        }
+        else {
+            static_assert(sizeof...(Args) == 0, "Unsupported number or types of arguments");
+        }
+    }
+};
+
 
 int main () {
 
@@ -367,6 +398,24 @@ int main () {
     //     cout << "Constructed " << i  << endl;
     // });
 
+    // /**
+    //  * 
+    //  * Use class with multiple triggers
+    //  * 
+    //  */
+
+    ClassWithTriggers mt;
+
+    mt.on<int>("int", function<void(int)>([&](int i) {
+        cout << "Emit int " << i << endl;
+    }));
+
+    mt.on<string>("string", function<void(string)>([&](string s) {
+        cout << "Emit string " << s << endl;
+    }));
+
+    mt.tick("int", 5);
+    mt.tick("string", string("Hello world"));
 
 
     // auto status = fs::read("test1.txt");
