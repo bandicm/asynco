@@ -1,10 +1,10 @@
-// // #define NUM_OF_RUNNERS 2
+#define NUM_OF_RUNNERS 4
 
-#include "../lib/asynco.hpp"
-#include "../lib/trigger.hpp"
-#include "../lib/filesystem.hpp"
-#include "../lib/timers.hpp"
-#include "../lib/define.hpp"
+#include "asynco.hpp"
+#include "trigger.hpp"
+#include "filesystem.hpp"
+#include "timers.hpp"
+#include "define.hpp"
 
 using namespace marcelb::asynco;
 using namespace triggers;
