@@ -421,11 +421,11 @@ try {
 
 ## Coroutine
 
-If `define.hpp` is included, you can initialize coroutines using `coroutine<T>`; if not, just use `boost::asio::awaitable<T>`.
+If `define.hpp` is included, you can initialize coroutines using `asyncable<T>`; if not, just use `boost::asio::awaitable<T>`.
 
 ```c++
 
-coroutine<int> c2(int a) {
+asyncable<int> c2(int a) {
     co_return a * 2;
 }
 
@@ -440,7 +440,7 @@ Or using a lambda expression:
 
 ```c++
 
-async_([]() -> coroutine<void> {
+async_([]() -> asyncable<void> {
     std::cout << "Hello" << std::endl;
     co_await c2(4);
     co_return;

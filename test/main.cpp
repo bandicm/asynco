@@ -17,13 +17,13 @@ using namespace marcelb::asynco;
 using namespace std;
 using namespace this_thread;
 
-coroutine<int> c2 (int a)  {
+asyncable<int> c2 (int a)  {
     co_return a*2;
 } 
 
 
 
-coroutine<void> c ()  {
+asyncable<void> c ()  {
     cout << "Ispisi" << endl;
     co_await c2(0);
     co_return;
@@ -458,7 +458,7 @@ int main () {
     // // ----------------------------------------------------------------------------------------------------
 
 
-    // auto i = async_ ( []() -> coroutine<int> {
+    // auto i = async_ ( []() -> asyncable<int> {
     //     cout << "aaaa" << endl;
     //     co_return 5;
     // });
@@ -470,7 +470,7 @@ int main () {
     // cout << i_ << endl;
 
 
-    // Periodic a( []() -> coroutine<void> {
+    // Periodic a( []() -> asyncable<void> {
     //     cout << "corutina" << endl;
     //     // co_await retint();
     // }, 2000);
@@ -485,15 +485,15 @@ int main () {
     // Trigger<int, string> evintString;
     Trigger<> evoid;
 
-    // ev2int.on("sum", [](int a, int b) -> coroutine<void> {
+    // ev2int.on("sum", [](int a, int b) -> asyncable<void> {
     //     cout << "Sum " << a+b << endl;
     // });
 
-    // ev2int.on("sum", [](int a, int b) -> coroutine<void> {
+    // ev2int.on("sum", [](int a, int b) -> asyncable<void> {
     //     cout << "Sum done" << endl;
     // });
 
-    // evintString.on("substract", [](int a, string b) -> coroutine<void> {
+    // evintString.on("substract", [](int a, string b) -> asyncable<void> {
     //     cout << "Substract " << a-stoi(b) << endl;
     // });
 
@@ -503,33 +503,35 @@ int main () {
     });
 
 
-    // auto c1 = []() -> coroutine<void> {
+    // auto c1 = []() -> asyncable<void> {
     //     cout << "Roge " << endl;
     //     co_return;
 
     // };
 
-    // async_ ( c2(3));
+    async_ ( c2(3));
 
-    async_ ([]() -> coroutine<void> {
+
+    async_ ([]() -> asyncable<void> {
         cout << "Hello" << endl;
         co_await c2(4);
         co_return;
     }());
 
-    Periodic p( []() {
-        auto a = await_ (async_ (c2(34)));
-        cout << "A " << a << endl;
-    }, 2000);
+    // Periodic p( []() {
+    //     async_ (
+    //         c2(34)
+    //     );
+    // }, 2000);
 
-    // await_( async_co2 ( [c1 = move(c1)]() -> coroutine<void> {
+    // await_( async_co2 ( [c1 = move(c1)]() -> asyncable<void> {
     //     cout << "Baba roga" << endl;
     //     co_await c1();
     // }));
 
     // string emited2 = "2";
 
-    // evoid.on("void", [&]() -> coroutine<void> {
+    // evoid.on("void", [&]() -> asyncable<void> {
     //     cout << "Void emited " << emited2 << endl;
     // });
 
