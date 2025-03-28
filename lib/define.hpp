@@ -11,6 +11,10 @@ namespace asynco {
 #define async_ marcelb::asynco::async_
 #define await_ marcelb::asynco::await_
 
+#if __cplusplus >= 202002L
+#define coroutine boost::asio::awaitable
+#endif
+
 }
 }
 

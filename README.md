@@ -22,6 +22,7 @@ The asynchronous filesystem is provided solely to guide users on how to wrap any
 - Multiple parallel execution loops
 - Asynchronous file IO
 - Based on ASIO (Boost Asio)
+- On C++20 support Boost.Asio coroutines
 ## Installation
 
 Just download the latest release and unzip it into your project. 
@@ -36,7 +37,6 @@ Just download the latest release and unzip it into your project.
 
 using namespace marcelb;
 using namespace asynco;
-using namespace triggers;
 
 // At the end of the main function, always set
 _asynco_engine.run();
@@ -418,6 +418,55 @@ try {
 }
 
 ```
+
+## Coroutine
+
+If `define.hpp` is included, you can initialize coroutines using `coroutine<T>`; if not, just use `boost::asio::awaitable<T>`.
+
+```c++
+
+coroutine<int> c2(int a) {
+    co_return a * 2;
+}
+
+```
+To run the coroutine at runtime, simply call:
+```c++
+
+async_(c2(4));
+
+```
+Or using a lambda expression:
+
+```c++
+
+async_([]() -> coroutine<void> {
+    std::cout << "Hello" << std::endl;
+    co_await c2(4);
+    co_return;
+}());
+
+```
+To retrieve results from coroutines, you can do so as you would from classical functions by calling `await_`:
+```c++
+
+int r = await_(
+    async_(
+        c2(10)
+));
+
+```
+Timers and triggers work the same with coroutines; it is important to call the coroutine with `async_` in the callback, and to call `async_`, wrap it with a lambda expression:
+
+```c++
+
+Periodic p([]() {
+    async_(c2(34));
+}, 2000);
+
+```
+If you need a result, you can also retrieve it with `await_`.
+
 
 ## License
 

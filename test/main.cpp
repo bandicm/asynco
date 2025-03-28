@@ -7,7 +7,6 @@
 #include "define.hpp"
 
 using namespace marcelb::asynco;
-using namespace triggers;
 
 #include <iostream>
 #include <unistd.h>
@@ -18,80 +17,92 @@ using namespace triggers;
 using namespace std;
 using namespace this_thread;
 
+coroutine<int> c2 (int a)  {
+    co_return a*2;
+} 
 
 
-void sleep_to (int _time) {
-    promise<void> _promise;
-    delayed t( [&]() {
-        _promise.set_value();
-    }, _time);
 
-    return _promise.get_future().get();
-}
+coroutine<void> c ()  {
+    cout << "Ispisi" << endl;
+    co_await c2(0);
+    co_return;
+} 
 
-void promise_reject (int _time) {
-    promise<void> _promise;
-    delayed t( [&]() {
-        try {
-            // simulate except
-            throw runtime_error("Error simulation");
-            _promise.set_value();
-        } catch (...) {
-            _promise.set_exception(current_exception());
-        }
-    }, _time);
 
-    return _promise.get_future().get();
-}
 
-void notLambdaFunction() {
-    cout << "Call to not lambda function" << endl;
-}
+// void sleep_to (int _time) {
+//     promise<void> _promise;
+//     Delayed t( [&]() {
+//         _promise.set_value();
+//     }, _time);
 
-class clm {
-    public:
-    void classMethode() {
-        cout << "Call class method" << endl;
-    }
-};
+//     return _promise.get_future().get();
+// }
 
-// ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
+// void promise_reject (int _time) {
+//     promise<void> _promise;
+//     Delayed t( [&]() {
+//         try {
+//             // simulate except
+//             throw runtime_error("Error simulation");
+//             _promise.set_value();
+//         } catch (...) {
+//             _promise.set_exception(current_exception());
+//         }
+//     }, _time);
 
-class myOwnClass : public trigger<int> {
-    public:
-    myOwnClass() : trigger() {};
-};
+//     return _promise.get_future().get();
+// }
+
+// void notLambdaFunction() {
+//     cout << "Call to not lambda function" << endl;
+// }
+
+// class clm {
+//     public:
+//     void classMethode() {
+//         cout << "Call class method" << endl;
+//     }
+// };
+
+// // ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
+
+// class myOwnClass : public Trigger<int> {
+//     public:
+//     myOwnClass() : Trigger() {};
+// };
 
 // ----------------- MULTIPLE TRIGGERS IN ONE CLASS ------------------
 
-class ClassWithTriggers {
-    trigger<int> emitter1;
-    trigger<string> emitter2;
+// class ClassWithTriggers {
+//     Trigger<int> emitter1;
+//     Trigger<string> emitter2;
 
-public:
-    template<typename... T>
-    void on(const string& key, function<void(T...)> callback) {
-        if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, int>) {
-            emitter1.on(key, callback);
-        }
-        else if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, string>) {
-            emitter2.on(key, callback);
-        }
-    }
+// public:
+//     template<typename... T>
+//     void on(const string& key, function<void(T...)> callback) {
+//         if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, int>) {
+//             emitter1.on(key, callback);
+//         }
+//         else if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, string>) {
+//             emitter2.on(key, callback);
+//         }
+//     }
 
-    template <typename... Args>
-    void tick(const string& key, Args&&... args) {
-        if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, int>) {
-            emitter1.tick(key, forward<Args>(args)...);
-        }
-        else if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, string>) {
-            emitter2.tick(key, forward<Args>(args)...);
-        }
-        else {
-            static_assert(sizeof...(Args) == 0, "Unsupported number or types of arguments");
-        }
-    }
-};
+//     template <typename... Args>
+//     void tick(const string& key, Args&&... args) {
+//         if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, int>) {
+//             emitter1.tick(key, forward<Args>(args)...);
+//         }
+//         else if constexpr (sizeof...(Args) == 1 && is_same_v<tuple_element_t<0, tuple<Args...>>, string>) {
+//             emitter2.tick(key, forward<Args>(args)...);
+//         }
+//         else {
+//             static_assert(sizeof...(Args) == 0, "Unsupported number or types of arguments");
+//         }
+//     }
+// };
 
 
 int main () {
@@ -101,36 +112,36 @@ int main () {
     // --------------- TIME ASYNCHRONOUS FUNCTIONS --------------
 
     /**
-     * Init periodic and delayed; clear periodic and delayed
+     * Init Periodic and delayed; clear Periodic and delayed
     */
 
-    // periodic inter1 ([&]() {
-    //     cout << "periodic prvi " << rtime_ms() - start << endl;
+    // Periodic inter1 ([&]() {
+    //     cout << "Periodic prvi " << rtime_ms() - start << endl;
     // }, 1000);
 
-    // periodic inter2 ([&]() {
-    //     cout << "periodic drugi " << rtime_ms() - start << endl;
+    // Periodic inter2 ([&]() {
+    //     cout << "Periodic drugi " << rtime_ms() - start << endl;
     // }, 2000);
 
-    // periodic inter3 ([&]() {
-    //     cout << "periodic treći " << rtime_ms() - start << endl;
+    // Periodic inter3 ([&]() {
+    //     cout << "Periodic treći " << rtime_ms() - start << endl;
     // }, 1000);
 
-    // periodic inter4 ([&]() {
-    //     // cout << "periodic cetvrti " << rtime_ms() - start << endl;
+    // Periodic inter4 ([&]() {
+    //     // cout << "Periodic cetvrti " << rtime_ms() - start << endl;
     //     cout << "Ticks " << inter3.ticks() << endl;
     // }, 500);
 
-    // periodic inter5 ([&]() {
-    //     cout << "periodic peti " << rtime_ms() - start << endl;
+    // Periodic inter5 ([&]() {
+    //     cout << "Periodic peti " << rtime_ms() - start << endl;
     // }, 2000);
 
-    // periodic inter6 ([&]() {
-    //     cout << "periodic sesti " << rtime_ms() - start << endl;
+    // Periodic inter6 ([&]() {
+    //     cout << "Periodic sesti " << rtime_ms() - start << endl;
     // }, 3000);
 
-    // delayed time1 ( [&] () {
-    //     cout << "Close periodic 1 i 2 " << rtime_ms() - start << endl;
+    // Delayed time1 ( [&] () {
+    //     cout << "Close Periodic 1 i 2 " << rtime_ms() - start << endl;
     //     inter1.stop();
     //     cout << "inter1.stop " << endl;
     //     inter2.stop();
@@ -138,8 +149,8 @@ int main () {
     // }, 8000);
 
 
-    // delayed time2 ([&] () {
-    //     cout << "Close periodic 3 " << rtime_ms() - start << endl;
+    // Delayed time2 ([&] () {
+    //     cout << "Close Periodic 3 " << rtime_ms() - start << endl;
     //     inter3.stop();
     //     cout << "Stoped " << inter3.stoped() << endl;
     //     // time1.stop();
@@ -244,7 +255,7 @@ int main () {
     // })) << endl;
 
     // /**
-    //  * Sleep with delayed sleep implement
+    //  * Sleep with Delayed sleep implement
     // */
 
     // sleep_to(3000);
@@ -335,9 +346,9 @@ int main () {
     //  * initialization of typed events
     // */
 
-    // trigger<int, int> ev2int;
-    // trigger<int, string> evintString;
-    // trigger<> evoid;
+    // Trigger<int, int> ev2int;
+    // Trigger<int, string> evintString;
+    // Trigger<> evoid;
 
     // ev2int.on("sum", [](int a, int b) {
     //     cout << "Sum " << a+b << endl;
@@ -390,7 +401,7 @@ int main () {
 
     // myOwnClass myclass;
 
-    // delayed t( [&] {
+    // Delayed t( [&] {
     //     myclass.tick("constructed", 1);
     // }, 200);
 
@@ -404,18 +415,18 @@ int main () {
     //  * 
     //  */
 
-    ClassWithTriggers mt;
+    // ClassWithTriggers mt;
 
-    mt.on<int>("int", function<void(int)>([&](int i) {
-        cout << "Emit int " << i << endl;
-    }));
+    // mt.on<int>("int", function<void(int)>([&](int i) {
+    //     cout << "Emit int " << i << endl;
+    // }));
 
-    mt.on<string>("string", function<void(string)>([&](string s) {
-        cout << "Emit string " << s << endl;
-    }));
+    // mt.on<string>("string", function<void(string)>([&](string s) {
+    //     cout << "Emit string " << s << endl;
+    // }));
 
-    mt.tick("int", 5);
-    mt.tick("string", string("Hello world"));
+    // mt.tick("int", 5);
+    // mt.tick("string", string("Hello world"));
 
 
     // auto status = fs::read("test1.txt");
@@ -445,6 +456,84 @@ int main () {
 
 
     // // ----------------------------------------------------------------------------------------------------
+
+
+    // auto i = async_ ( []() -> coroutine<int> {
+    //     cout << "aaaa" << endl;
+    //     co_return 5;
+    // });
+
+    // auto i = async_ (retint());
+
+    // auto i_ = await_(i);
+
+    // cout << i_ << endl;
+
+
+    // Periodic a( []() -> coroutine<void> {
+    //     cout << "corutina" << endl;
+    //     // co_await retint();
+    // }, 2000);
+
+
+    // Periodic b( []()  {
+    //     cout << "funckija" << endl;
+    // }, 2000);
+
+
+    // Trigger<int, int> ev2int;
+    // Trigger<int, string> evintString;
+    Trigger<> evoid;
+
+    // ev2int.on("sum", [](int a, int b) -> coroutine<void> {
+    //     cout << "Sum " << a+b << endl;
+    // });
+
+    // ev2int.on("sum", [](int a, int b) -> coroutine<void> {
+    //     cout << "Sum done" << endl;
+    // });
+
+    // evintString.on("substract", [](int a, string b) -> coroutine<void> {
+    //     cout << "Substract " << a-stoi(b) << endl;
+    // });
+
+    evoid.on("void", []() {
+        auto a = await_ (async_ (c2(34)));
+        cout << "A " << a << endl;
+    });
+
+
+    // auto c1 = []() -> coroutine<void> {
+    //     cout << "Roge " << endl;
+    //     co_return;
+
+    // };
+
+    // async_ ( c2(3));
+
+    async_ ([]() -> coroutine<void> {
+        cout << "Hello" << endl;
+        co_await c2(4);
+        co_return;
+    }());
+
+    Periodic p( []() {
+        auto a = await_ (async_ (c2(34)));
+        cout << "A " << a << endl;
+    }, 2000);
+
+    // await_( async_co2 ( [c1 = move(c1)]() -> coroutine<void> {
+    //     cout << "Baba roga" << endl;
+    //     co_await c1();
+    // }));
+
+    // string emited2 = "2";
+
+    // evoid.on("void", [&]() -> coroutine<void> {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
+
+    evoid.tick("void");
 
     cout << "Run" << endl;
     _asynco_engine.run();

@@ -3,8 +3,13 @@
 
 #include "engine.hpp"
 #include <iostream>
-
 using namespace std;
+
+#if __cplusplus >= 202002L
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#endif
 
 namespace marcelb {
 namespace asynco {
@@ -18,6 +23,34 @@ auto async_(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::typ
     future<return_type> res = _asynco_engine.io_context.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
     return res;
 }
+
+#if __cplusplus >= 202002L
+/**
+ * Run the coroutine asynchronously
+*/
+template <typename T>
+std::future<T> async_(boost::asio::awaitable<T> _coroutine) {
+    std::promise<T> promise;
+    auto future = promise.get_future();
+
+    co_spawn(_asynco_engine.io_context, [_coroutine = std::move(_coroutine), promise = std::move(promise)]() mutable -> boost::asio::awaitable<void> {
+        try {
+            if constexpr (!std::is_void_v<T>) {
+                T result = co_await std::move(_coroutine);
+                promise.set_value(std::move(result));
+            } else {
+                co_await std::move(_coroutine);
+                promise.set_value(); // Za void ne postavljamo rezultat
+            }
+        } catch (...) {
+            promise.set_exception(std::current_exception()); // Postavljamo izuzetak
+        }
+    }, boost::asio::detached);
+
+    return future;
+}
+
+#endif
 
 /**
  * Block until the asynchronous call completes
@@ -38,24 +71,24 @@ T await_(future<T>&& r) {
 /**
  * Block until the asynchronous call completes or time expired
 */
-template<typename T>
-T await_(future<T>& r, uint64_t time) {
-    if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
-        throw runtime_error("Asynchronous execution timed out");
-    }
-    return r.get();
-}
+// template<typename T>
+// T await_(future<T>& r, uint64_t time) {
+//     if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
+//         throw runtime_error("Asynchronous execution timed out");
+//     }
+//     return r.get();
+// }
 
 /**
  * Block until the asynchronous call completes or time expired
 */
-template<typename T>
-T await_(future<T>&& r, uint64_t time) {
-     if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
-        throw runtime_error("Asynchronous execution timed out");
-    } 
-    return move(r).get();
-}
+// template<typename T>
+// T await_(future<T>&& r, uint64_t time) {
+//      if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
+//         throw runtime_error("Asynchronous execution timed out");
+//     } 
+//     return move(r).get();
+// }
 
 }
 }
