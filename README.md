@@ -50,7 +50,7 @@ Time asynchronous functions
 
 ```c++
 // start periodic
-periodic inter1 ([]() {
+Periodic inter1 ([]() {
      cout << "Interval 1" << endl;
 }, 1000);
 
@@ -202,7 +202,7 @@ auto await_all = [&] () {
 
 void sleep_to (int _time) {
     promise<void> _promise;
-    delayed t( [&]() {
+    Delayed t( [&]() {
         _promise.set_value();
     }, _time);
 
@@ -217,7 +217,7 @@ sleep_to(3000);
 
 void promise_reject (int _time) {
     promise<void> _promise;
-    delayed t( [&]() {
+    Delayed t( [&]() {
         try {
             // simulate except
             throw runtime_error("Error simulation");
