@@ -64,7 +64,7 @@ int t = inter1.ticks();
 bool stoped = inter1.stoped();
 
 // start delayed
-delayed time1 ( [] () {
+Delayed time1 ( [] () {
     cout << "Timeout 1 " << endl;
 }, 10000);
 
@@ -76,28 +76,6 @@ int t = time1.expired();
 
 // is it stopped
 bool stoped = time1.stoped();
-
-// If you don't want to save in a variable, but you want to start a timer, use these functions
-// And you can also save them, they are only of the shared pointer type
-
-auto d = Delayed( [](){
-    cout << "Delayed" << endl;
-}, 2000);
-
-auto p = Periodic( [](){
-    cout << "Periodic" << endl;
-}, 700);
-
-Periodic( [&] (){
-    cout << "Delayed expire " << d->expired() << endl;
-    cout << "Periodic ticks " << p->ticks() << endl;
-    cout << "Delayed stoped " << d->stoped() << endl;
-    cout << "Periodic stoped " << p->stoped() << endl;
-}, 1000);
-
-Delayed( [&](){
-    p->stop();
-}, 10000);
 
 ```
 Make functions asynchronous
@@ -265,9 +243,9 @@ Events
 * initialization of typed events
 */
 
-trigger<int, int> ev2int;
-trigger<int, string> evintString;
-trigger<> evoid;
+Trigger<int, int> ev2int;
+Trigger<int, string> evintString;
+Trigger<> evoid;
 
 ev2int.on("sum", [](int a, int b) {
     cout << "Sum " << a+b << endl;
@@ -312,14 +290,14 @@ evoid.tick("void"); // nothing is happening
 Extend own class whit events
 
 ```c++
-class myOwnClass : public trigger<int> {
+class myOwnClass : public Trigger<int> {
     public:
-    myOwnClass() : trigger() {};
+    myOwnClass() : Trigger() {};
 };
 
 myOwnClass myclass;
 
-delayed t( [&] {
+Delayed t( [&] {
     myclass.tick("constructed", 1);
 }, 200);
 
@@ -334,8 +312,8 @@ Implementing a class with multiple triggers of different types
 ```c++
 
 class ClassWithTriggers {
-    trigger<int> emitter1;
-    trigger<string> emitter2;
+    Trigger<int> emitter1;
+    Trigger<string> emitter2;
 
 public:
     template<typename... T>
