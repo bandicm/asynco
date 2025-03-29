@@ -26,7 +26,7 @@ auto async_(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::typ
 
 #if __cplusplus >= 202002L
 /**
- * Run the coroutine asynchronously
+ * Run the coroutine
 */
 template <typename T>
 std::future<T> async_(boost::asio::awaitable<T> _coroutine) {
@@ -67,6 +67,33 @@ template<typename T>
 T await_(future<T>&& r) {
     return move(r).get();
 }
+
+/**
+ * Run the function asynchronously an block until completes
+*/
+template<class F, class... Args>
+auto await_(F&& f, Args&&... args) -> typename result_of<F(Args...)>::type {
+    return await_(
+        async_(f, args...)
+    );
+}
+
+
+#if __cplusplus >= 202002L
+
+/**
+ * Run the coruotine and wait
+ */
+template <typename T>
+T await_(boost::asio::awaitable<T> _coroutine) {
+    return await_(
+        async_(
+            move(_coroutine)
+        ));
+}
+
+#endif
+
 
 /**
  * Block until the asynchronous call completes or time expired

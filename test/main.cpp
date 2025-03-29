@@ -21,6 +21,11 @@ asyncable<int> c2 (int a)  {
     co_return a*2;
 } 
 
+asyncable<void> sleep_co (int a)  {
+    sleep(a);
+    cout << "Gotov" << endl;
+    co_return;
+} 
 
 
 asyncable<void> c ()  {
@@ -483,7 +488,7 @@ int main () {
 
     // Trigger<int, int> ev2int;
     // Trigger<int, string> evintString;
-    Trigger<> evoid;
+    // Trigger<> evoid;
 
     // ev2int.on("sum", [](int a, int b) -> asyncable<void> {
     //     cout << "Sum " << a+b << endl;
@@ -497,10 +502,10 @@ int main () {
     //     cout << "Substract " << a-stoi(b) << endl;
     // });
 
-    evoid.on("void", []() {
-        auto a = await_ (async_ (c2(34)));
-        cout << "A " << a << endl;
-    });
+    // evoid.on("void", []() {
+    //     auto a = await_ (async_ (c2(34)));
+    //     cout << "A " << a << endl;
+    // });
 
 
     // auto c1 = []() -> asyncable<void> {
@@ -509,14 +514,50 @@ int main () {
 
     // };
 
-    async_ ( c2(3));
+    // auto a =  await_ ( c2(3));
+    // cout << a << endl;
 
+
+    // await_ ([]() -> asyncable<void> {
+    //     cout << "Hello" << endl;
+    //     co_await c2(4);
+    //     co_return;
+    // }());
 
     async_ ([]() -> asyncable<void> {
-        cout << "Hello" << endl;
-        co_await c2(4);
+        cout << "1" << endl;
+        co_await sleep_co(1);
         co_return;
     }());
+
+    async_ ([]() -> asyncable<void> {
+        cout << "2" << endl;
+        co_await sleep_co(1);
+        co_return;
+    }());
+
+    async_ ([]() -> asyncable<void> {
+        cout << "3" << endl;
+        co_await sleep_co(1);
+        co_return;
+    }());
+
+    async_ ([]() -> asyncable<void> {
+        cout << "4" << endl;
+        co_await sleep_co(1);
+        co_return;
+    }());
+
+    async_ ([]() -> asyncable<void> {
+        cout << "5" << endl;
+        co_await sleep_co(1);
+        co_return;
+    }());
+
+
+    // await_ ([]()  {
+    //     cout << "Hello" << endl;
+    // });
 
     // Periodic p( []() {
     //     async_ (
@@ -535,11 +576,10 @@ int main () {
     //     cout << "Void emited " << emited2 << endl;
     // });
 
-    evoid.tick("void");
+    // evoid.tick("void");
 
-    cout << "Run" << endl;
+    cout << "-------------end main-------------" << endl;
     _asynco_engine.run();
-
     return 0;
 }
 

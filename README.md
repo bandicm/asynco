@@ -1,13 +1,13 @@
 
 # Asynco
 
-A C++ library for event-driven asynchronous multi-threaded programming.
+A C++ library for event-driven asynchronous multi-threaded programming that serves as a runtime for asynchronous operations. It acts as a wrapper around the Boost.Asio library, providing a cleaner way to write asynchronous, concurrent, and parallel code utilizing a set of threads and an event loops. It offers features for event-driven programming, timers, and coroutine support.
 
 ## Motivation
 
-The original concept was to create an interface capable of asynchronously calling any function. It has since evolved into a library that incorporates a thread pool, each with its own event loop, event-driven programming, and functions inherently designed for asynchronous operation (including periodic and delayed functions).
+The initial goal was to create an interface that makes it easy and clean to asynchronously invoke any function in C++ without resorting to complex calls. Initially, the library was built around a custom implementation of a scheduling loop for queuing functions. However, this part was later replaced with Boost.Asio, mainly for its timer functionality. As the library evolved, it expanded to include a thread pool, each with its own event loop, and adopted event-driven programming. This enhancement also introduced functions specifically designed for asynchronous operations, including periodic and delayed execution.
 
-The asynchronous filesystem is provided solely to guide users on how to wrap any time- or IO-intensive function for asynchronous execution.
+The asynchronous filesystem was included solely to demonstrate how users can wrap any time- or I/O-intensive functions for asynchronous execution.
 
 ## Features
 
@@ -16,7 +16,7 @@ The asynchronous filesystem is provided solely to guide users on how to wrap any
 - Header only
 - Asynchronous programming
 - Multithread
-- Asynchronous timer functions: periodic, delayed (like setInterval and setTimeout from JS)
+- Asynchronous timer functions: Periodic, Delayed (like setInterval and setTimeout from JS)
 - Typed events (on, tick, off) (like EventEmitter from JS: on, emit, etc)
 - Event loops
 - Multiple parallel execution loops
@@ -31,9 +31,10 @@ Just download the latest release and unzip it into your project.
 #define NUM_OF_RUNNERS 8                // To change the number of threads used by asynco, without this it runs according to the number of cores
 
 #include "asynco/lib/asynco.hpp"        // async_ (), await_()
-#include "asynco/lib/triggers.hpp"      // trigger (event emitter)
-#include "asynco/lib/timers.hpp"        // periodic, delayed (like setInterval and setTimeout from JS)
+#include "asynco/lib/triggers.hpp"      // Trigger (event emitter)
+#include "asynco/lib/timers.hpp"        // Periodic, Delayed (like setInterval and setTimeout from JS)
 #include "asynco/lib/filesystem.hpp"    // for async read and write files
+#include "asynco/lib/define.hpp"        // async_, await_, asyncable_ defines
 
 using namespace marcelb;
 using namespace asynco;
@@ -46,7 +47,11 @@ return 0;
 
 ## Usage
 
-Time asynchronous functions
+In the following sections, we will explore timers, function execution via the runtime, asynchronous invocation, and waiting for results. We will cover essential use cases involving triggers, file handling, and coroutines.
+
+### Timers
+
+We have two timer classes, Periodic (which runs a callback function periodically), and Delayed (delayed runs a callback function only once).
 
 ```c++
 // start periodic
@@ -78,7 +83,9 @@ int t = time1.expired();
 bool stoped = time1.stoped();
 
 ```
-Make functions asynchronous
+### Make functions asynchronous
+
+Running functions at runtime, asynchronous execution, uses the `async_` call and its return type is `std::future<T>`
 
 ```c++
 /**
@@ -117,12 +124,11 @@ clm classes;
 async_ ( [&classes] () {
     classes.classMethode();
 });
+```
 
+To wait for the result (blocking the flow) use `await_` (basically nothing more than a `.get()` call on a future object)
 
-
-/**
-* await_ after runned as async
-*/
+```c++
 
 auto a = async_ ( []() {
     sleep_for(2s);   // only for simulating long duration function
@@ -142,10 +148,20 @@ cout << await_(async_ ( [] () {
     return 4;
 })) << endl;
 
+```
 
-/**
- *  Await all
- **/
+If you want to run asynchronously but need the result immediately, you can use a shorter notation
+
+```c++
+
+await_ ([]()  {
+    cout << "Hello" << endl;
+});
+
+```
+If multiple function calls do not depend on each other, you can call them and wait for the results later, better concurrency.
+
+```c++
 
 auto a = async_ ( []() {
     cout << "A" << endl;
@@ -196,9 +212,14 @@ auto await_all = [&] () {
     }
 };
 
+```
+Just an example:
+
+```c++
+
 /**
-* Sleep with delayed sleep implement
-*/
+ * Sleep with delayed sleep implement
+ **/ 
 
 void sleep_to (int _time) {
     promise<void> _promise;
@@ -236,7 +257,10 @@ try {
     cout<< err.what() << endl;
 }
 ```
-Events
+
+### Triggers
+
+The library implements Triggers, which are basically typed Events.
 
 ```c++
 /**
@@ -355,7 +379,7 @@ mt.tick("string", string("Hello world"));
 
 ```
 
-
+Another example:
 Asynchronous file IO
 
 ```c++
@@ -434,6 +458,21 @@ int r = await_(
 ));
 
 ```
+
+If you need the result immediately, you can use a shorter notation
+
+```c++
+
+auto a =  await_ ( c2(3));
+cout << a << endl;
+
+await_ ([]() -> asyncable<void> {
+    cout << "Hello" << endl;
+    co_return;
+}());
+
+```
+
 Timers and triggers work the same with coroutines; it is important to call the coroutine with `async_` in the callback, and to call `async_`, wrap it with a lambda expression:
 
 ```c++
