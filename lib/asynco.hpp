@@ -36,6 +36,26 @@ T await_(future<T>&& r) {
 }
 
 /**
+ * Block until the multiple asynchronous call completes
+ * Use only on no-void calls
+ */
+
+template<typename... F>
+auto await_(F&&... f) -> std::tuple<typename std::decay<decltype(f.get())>::type...> {
+    return std::make_tuple(move(f).get()...);
+}
+
+/**
+ * Block until the multiple asynchronous call completes
+ * Use only on no-void calls
+ */
+
+template<typename... F>
+auto await_(F&... f) -> std::tuple<typename std::decay<decltype(f.get())>::type...> {
+    return std::make_tuple(f.get()...);
+}
+
+/**
  * Block until the asynchronous call completes or time expired
 */
 template<typename T>

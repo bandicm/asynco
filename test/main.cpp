@@ -278,24 +278,39 @@ int main () {
 
     // // -------------------------- AWAIT ALL ----------------------------------
 
-    // auto a = async_ ( []() {
-    //     cout << "A" << endl;
-    //     return 3;
-    // });
+    auto a = async_ ( []() {
+        cout << "A" << endl;
+        return 3;
+    });
 
-    // auto b = async_ ( []() {
-    //     cout << "B" << endl;
-    //     throw runtime_error("Test exception");
-    //     return;
-    // });
+    auto b = async_ ( []() {
+        cout << "B" << endl;
+        // throw runtime_error("Test exception");
+        return;
+    });
 
-    // auto c = async_ ( []() {
-    //     cout << "C" << endl;
-    //     return "Hello";
-    // });
+    auto c = async_ ( []() {
+        cout << "C" << endl;
+        return "Hello";
+    });
 
-    // int a_;
-    // string c_;
+    int a_;
+    string c_;
+
+    // auto all = await_(a, c);
+    // cout << get<0>(all) << get<1>(all) << endl;
+
+    // ili
+
+    tie(a_, c_) = await_(a, c);
+    cout << a_ << c_ << endl;
+
+    int d_;
+    float e_;
+    tie(d_, e_) = await_( async_ ( []() {return 1;}), async_ ([](){ return 4.3;}));
+
+    cout << d_ << e_ << endl;
+    
 
     // auto await_all = [&] () {
     //     a_ = await_(a);
