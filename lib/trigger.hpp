@@ -11,14 +11,13 @@ using namespace std;
 #include "engine.hpp"
 namespace marcelb {
 namespace asynco {
-namespace triggers {
 
 /**
- * trigger class, for event-driven programming.
+ * Trigger class, for event-driven programming.
  * These events are typed according to the arguments of the callback function
 */
 template<typename... T>
-class trigger {
+class Trigger {
     private:
     mutex m_eve;
     unordered_map<string, vector<function<void(T...)>>> triggers;
@@ -48,7 +47,7 @@ class trigger {
     }
 
     /**
-     * Remove an trigger listener from an event
+     * Remove an Trigger listener from an event
     */
     void off(const string& key) {
         lock_guard _off(m_eve);
@@ -56,7 +55,7 @@ class trigger {
     }
 
     /**
-     * Remove all trigger listener
+     * Remove all Trigger listener
     */
     void off() {
         lock_guard _off(m_eve);
@@ -65,7 +64,7 @@ class trigger {
 
 
     /**
-     * Get num of listeners by an trigger key
+     * Get num of listeners by an Trigger key
     */
     unsigned int listeners(const string& key) {
         return triggers[key].size();
@@ -85,7 +84,6 @@ class trigger {
 
 };
 
-}
 }
 }
 

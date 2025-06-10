@@ -24,7 +24,7 @@ int64_t rtime_us();
 /**
  * Core timer class for construct time async functions
 */
-class timer {
+class Timer {
     boost::asio::steady_timer st;
     bool _stop = false;
     bool repeate;
@@ -35,14 +35,13 @@ class timer {
     /**
      * A method to assign a callback wrapper and a reinitialization algorithm
     */
-    void init();
-   
+    void init();   
     public:
 
     /**
      * The constructor creates the steady_timer and accompanying variables and runs a method to initialize the timer
     */
-    timer (function<void()> _callback, uint64_t _time, bool _repeate);
+    Timer (function<void()> _callback, uint64_t _time, bool _repeate);
 
     /**
      * Stop timer
@@ -68,21 +67,21 @@ class timer {
     /**
      * The destructor stops the timer
     */
-    ~timer();
+    ~Timer();
 };
 
 /**
  * Class periodic for periodic execution of the callback in time in ms
 */
-class periodic {
-    shared_ptr<timer> _timer;
+class Periodic {
+    shared_ptr<Timer> _timer;
 
     public:
 
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    periodic(function<void()> callback, uint64_t time);
+    Periodic(function<void()> callback, uint64_t time);
 
     /**
      * Stop periodic
@@ -108,21 +107,21 @@ class periodic {
     /**
      * The destructor stops the periodic
     */
-    ~periodic();
+    ~Periodic();
 };
 
 /**
  * Class delayed for delayed callback execution in ms
 */
-class delayed {
-    shared_ptr<timer> _timer;
+class Delayed {
+    shared_ptr<Timer> _timer;
 
     public:
 
     /**
      * Constructor initializes a shared pointer of type timer
     */
-    delayed(function<void()> callback, uint64_t time);
+    Delayed(function<void()> callback, uint64_t time);
     
     /**
      * Stop delayed
@@ -147,12 +146,9 @@ class delayed {
     /**
      * The destructor stops the delayed
     */
-    ~delayed();
+    ~Delayed();
 
 };
-
-shared_ptr<periodic> Periodic(function<void()> callback, uint64_t time);
-shared_ptr<delayed> Delayed(function<void()> callback, uint64_t time);
 
 
 }

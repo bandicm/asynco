@@ -14,7 +14,7 @@ int64_t rtime_us() {
         .count();
 }
 
-void timer::init() {
+void Timer::init() {
     st.async_wait( [this] (const boost::system::error_code&) {
         if (!_stop) {
             callback();
@@ -27,7 +27,7 @@ void timer::init() {
     });
 }
 
-timer::timer (function<void()> _callback, uint64_t _time, bool _repeate) :
+Timer::Timer (function<void()> _callback, uint64_t _time, bool _repeate) :
     st(_asynco_engine.io_context, boost::asio::chrono::milliseconds(_time)),
     _stop(false),
     repeate(_repeate),
@@ -37,109 +37,74 @@ timer::timer (function<void()> _callback, uint64_t _time, bool _repeate) :
     init();
 }
 
-void timer::stop() {
+void Timer::stop() {
     _stop = true;
     st.cancel();
 }
 
-void timer::now() {
+void Timer::now() {
     st.cancel();
 }
 
-uint64_t timer::ticks() {
+uint64_t Timer::ticks() {
     return _ticks;
 }
 
-bool timer::stoped() {
+bool Timer::stoped() {
     return _stop;
 }
 
-timer::~timer() {
+Timer::~Timer() {
     stop();
 }
 
-periodic::periodic(function<void()> callback, uint64_t time) : 
-    _timer(make_shared<timer> (callback, time, true)) {
+Periodic::Periodic(function<void()> callback, uint64_t time) : 
+    _timer(make_shared<Timer> (callback, time, true)) {
 }
 
-void periodic::stop() {
+void Periodic::stop() {
     _timer->stop();
 }
 
-void periodic::now() {
+void Periodic::now() {
     _timer->now();
 }
 
-uint64_t periodic::ticks() {
+uint64_t Periodic::ticks() {
     return _timer->ticks();
 }
 
-bool periodic::stoped() {
+bool Periodic::stoped() {
     return _timer->stoped();
 }
 
-periodic::~periodic() {
+Periodic::~Periodic() {
     stop();
 }
 
-delayed::delayed(function<void()> callback, uint64_t time) : 
-    _timer(make_shared<timer> (callback, time, false)) {
+Delayed::Delayed(function<void()> callback, uint64_t time) : 
+    _timer(make_shared<Timer> (callback, time, false)) {
 }
 
-void delayed::stop() {
+void Delayed::stop() {
     _timer->stop();
 }
 
-void delayed::now() {
+void Delayed::now() {
     _timer->now();
 }
 
-bool delayed::expired() {
+bool Delayed::expired() {
     return bool(_timer->ticks());
 }
 
-bool delayed::stoped() {
+bool Delayed::stoped() {
     return _timer->stoped();
 }
 
-delayed::~delayed() {
+Delayed::~Delayed() {
     stop();
 }
-
-mutex p_io, d_io;
-vector<shared_ptr<periodic>> periodic_calls_container;
-vector<shared_ptr<delayed>> delayed_calls_container;
-
-shared_ptr<periodic> Periodic(function<void()> callback, uint64_t time) {
-    shared_ptr<periodic> periodic_ptr(make_shared<periodic>(callback, time));
-    async_ ( [&, periodic_ptr](){
-        lock_guard<mutex> lock(p_io);
-        periodic_calls_container.push_back(periodic_ptr);
-        for (uint32_t i=0; i<periodic_calls_container.size(); i++) {
-            if (periodic_calls_container[i]->stoped()) {
-                periodic_calls_container.erase(periodic_calls_container.begin()+i);
-                i--;
-            }
-        }
-    });
-    return periodic_ptr;
-}
-
-shared_ptr<delayed> Delayed(function<void()> callback, uint64_t time) {
-    shared_ptr<delayed> delayed_ptr(make_shared<delayed>(callback, time));
-    async_ ( [&, delayed_ptr](){
-        lock_guard<mutex> lock(p_io);
-        delayed_calls_container.push_back(delayed_ptr);
-        for (uint32_t i=0; i<delayed_calls_container.size(); i++) {
-            if (delayed_calls_container[i]->stoped() || delayed_calls_container[i]->expired()) {
-                delayed_calls_container.erase(delayed_calls_container.begin()+i);
-                i--;
-            }
-        }
-    });
-    return delayed_ptr;
-}
-
 
 
 };
