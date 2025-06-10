@@ -2,9 +2,11 @@
 #define _ASYNCO_TIMERS_
 
 #include <chrono>
+#include <iostream>
 using namespace std;
 
-#include "asynco.hpp"
+#include <boost/asio.hpp>
+using namespace boost::asio;
 
 namespace marcelb {
 namespace asynco {
@@ -21,13 +23,19 @@ int64_t rtime_ms();
 
 int64_t rtime_us();
 
+enum TimerType {
+    Delayed,
+    Periodic
+};
+
 /**
  * Core timer class for construct time async functions
 */
 class Timer {
-    boost::asio::steady_timer st;
+    io_context& io_ctx;
+    steady_timer st;
     bool _stop = false;
-    bool repeate;
+    TimerType type;
     function<void()> callback;
     uint64_t time;
     uint64_t _ticks = 0;
@@ -41,7 +49,7 @@ class Timer {
     /**
      * The constructor creates the steady_timer and accompanying variables and runs a method to initialize the timer
     */
-    Timer (function<void()> _callback, uint64_t _time, bool _repeate);
+    Timer (io_context& io_ctx, function<void()> _callback, uint64_t _time, TimerType _type = TimerType::Delayed);
 
     /**
      * Stop timer
@@ -61,6 +69,11 @@ class Timer {
     uint64_t ticks();
 
     /**
+     * Get is the delayed callback runned
+    */
+    bool expired();
+
+    /**
      * The logic status of the timer stop state
     */
     bool stoped();
@@ -68,86 +81,6 @@ class Timer {
      * The destructor stops the timer
     */
     ~Timer();
-};
-
-/**
- * Class periodic for periodic execution of the callback in time in ms
-*/
-class Periodic {
-    shared_ptr<Timer> _timer;
-
-    public:
-
-    /**
-     * Constructor initializes a shared pointer of type timer
-    */
-    Periodic(function<void()> callback, uint64_t time);
-
-    /**
-     * Stop periodic
-     * The stop flag is set and periodic remove it from the queue
-    */
-    void stop();
-
-    /**
-     * Run callback now
-     * Forces the callback function to run independently of the periodic
-    */
-    void now();
-    
-    /**
-     * Get the number of times the periodic callback was runned
-    */
-    uint64_t ticks();
-    /**
-     * The logic status of the periodic stop state
-    */
-    bool stoped();
-    
-    /**
-     * The destructor stops the periodic
-    */
-    ~Periodic();
-};
-
-/**
- * Class delayed for delayed callback execution in ms
-*/
-class Delayed {
-    shared_ptr<Timer> _timer;
-
-    public:
-
-    /**
-     * Constructor initializes a shared pointer of type timer
-    */
-    Delayed(function<void()> callback, uint64_t time);
-    
-    /**
-     * Stop delayed
-     * The stop flag is set and delayed remove it from the queue
-    */
-    void stop();
-
-    /**
-     * Run callback now
-     * Forces the callback function to run independently of the delayed
-    */
-    void now();
-
-    /**
-     * Get is the delayed callback runned
-    */
-    bool expired();
-    /**
-     * The logic status of the delayed stop state
-    */
-    bool stoped();
-    /**
-     * The destructor stops the delayed
-    */
-    ~Delayed();
-
 };
 
 

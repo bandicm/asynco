@@ -3,13 +3,13 @@
 namespace marcelb::asynco {
 
 int64_t rtime_ms() {
-    return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now()
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()
         .time_since_epoch())
         .count();
 }
 
 int64_t rtime_us() {
-    return chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now()
+    return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now()
         .time_since_epoch())
         .count();
 }
@@ -18,8 +18,8 @@ void Timer::init() {
     st.async_wait( [this] (const boost::system::error_code&) {
         if (!_stop) {
             callback();
-            if (repeate) {
-                st = boost::asio::steady_timer(_asynco_engine.io_context, boost::asio::chrono::milliseconds(time));
+            if (type == TimerType::Periodic) {
+                st = steady_timer(io_ctx, boost::asio::chrono::milliseconds(time));
                 init();
             }
             _ticks++;
@@ -27,13 +27,14 @@ void Timer::init() {
     });
 }
 
-Timer::Timer (function<void()> _callback, uint64_t _time, bool _repeate) :
-    st(_asynco_engine.io_context, boost::asio::chrono::milliseconds(_time)),
+Timer::Timer (io_context& _io_ctx, function<void()> _callback, uint64_t _time, TimerType _type):
+    io_ctx(_io_ctx),
+    st(io_ctx, boost::asio::chrono::milliseconds(_time)),
     _stop(false),
-    repeate(_repeate),
+    type(_type),
     callback(_callback),
     time(_time) {
-        
+            cout << "Timer" << endl;
     init();
 }
 
@@ -50,6 +51,10 @@ uint64_t Timer::ticks() {
     return _ticks;
 }
 
+bool Timer::expired() {
+    return bool(_ticks);
+}
+
 bool Timer::stoped() {
     return _stop;
 }
@@ -57,54 +62,5 @@ bool Timer::stoped() {
 Timer::~Timer() {
     stop();
 }
-
-Periodic::Periodic(function<void()> callback, uint64_t time) : 
-    _timer(make_shared<Timer> (callback, time, true)) {
-}
-
-void Periodic::stop() {
-    _timer->stop();
-}
-
-void Periodic::now() {
-    _timer->now();
-}
-
-uint64_t Periodic::ticks() {
-    return _timer->ticks();
-}
-
-bool Periodic::stoped() {
-    return _timer->stoped();
-}
-
-Periodic::~Periodic() {
-    stop();
-}
-
-Delayed::Delayed(function<void()> callback, uint64_t time) : 
-    _timer(make_shared<Timer> (callback, time, false)) {
-}
-
-void Delayed::stop() {
-    _timer->stop();
-}
-
-void Delayed::now() {
-    _timer->now();
-}
-
-bool Delayed::expired() {
-    return bool(_timer->ticks());
-}
-
-bool Delayed::stoped() {
-    return _timer->stoped();
-}
-
-Delayed::~Delayed() {
-    stop();
-}
-
 
 };

@@ -8,9 +8,11 @@
 
 using namespace std;
 
-#include "engine.hpp"
+#include "asynco.hpp"
 namespace marcelb {
 namespace asynco {
+
+class Asynco;
 
 /**
  * Trigger class, for event-driven programming.
@@ -19,8 +21,12 @@ namespace asynco {
 template<typename... T>
 class Trigger {
     private:
+    Asynco& engine;
     mutex m_eve;
     unordered_map<string, vector<function<void(T...)>>> triggers;
+
+    Trigger(Asynco& _engine)
+        : engine(_engine) {}
 
     public:
 
@@ -32,6 +38,7 @@ class Trigger {
         triggers[key].push_back(callback);
     }
 
+
     /**
      * It emits an event and sends a callback function saved according to the key with the passed parameters
     */
@@ -41,7 +48,7 @@ class Trigger {
         if (it_eve != triggers.end()) {
             for (uint i =0; i<it_eve->second.size(); i++) {
                 auto callback = bind(it_eve->second[i], forward<Args>(args)...); 
-                asynco::async_(callback);
+                engine.async(callback);
             }
         }
     }
@@ -49,7 +56,7 @@ class Trigger {
     /**
      * Remove an Trigger listener from an event
     */
-    void off(const string& key) {
+    void off(const string& key)  {
         lock_guard _off(m_eve);
         triggers.erase(key);
     }
@@ -61,7 +68,6 @@ class Trigger {
         lock_guard _off(m_eve);
         triggers.clear();
     }
-
 
     /**
      * Get num of listeners by an Trigger key

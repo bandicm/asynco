@@ -40,7 +40,7 @@ using namespace marcelb;
 using namespace asynco;
 
 // At the end of the main function, always set
-_asynco_engine.run();
+Asynco_Default_Runtime.run();
 return 0;
 
 ```

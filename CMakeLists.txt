@@ -14,7 +14,8 @@ include_directories(lib)
 
 # Dodaj biblioteku
 add_library(asynco STATIC
-    src/engine.cpp
+    src/asynco.cpp
+    src/asynco_default.cpp
     src/timers.cpp
 )
 

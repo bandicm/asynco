@@ -1,9 +1,20 @@
 #ifndef _ASYNCO_
 #define _ASYNCO_
 
-#include "engine.hpp"
+#include <vector>
+#include <memory>
+#include <type_traits>
+#include <thread>
+#include <future>
+#include <functional>
 #include <iostream>
 using namespace std;
+
+#include <boost/asio.hpp>
+using namespace boost::asio;
+
+#include "timers.hpp"
+#include "trigger.hpp"
 
 #if __cplusplus >= 202002L
 #include <boost/asio/awaitable.hpp>
@@ -15,110 +26,143 @@ namespace marcelb {
 namespace asynco {
 
 /**
- * Run the function asynchronously
+ *  Asynco runtime 
 */
-template<class F, class... Args>
-auto async_(F&& f, Args&&... args) -> future<typename result_of<F(Args...)>::type> {
-    using return_type = typename result_of<F(Args...)>::type;
-    future<return_type> res = _asynco_engine.io_context.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
-    return res;
-}
+class Asynco {
+    vector<thread> _runners;
+    unique_ptr<io_service::work> _work;
+
+    void init_loops_in_threads(uint8_t threads);
+
+public:
+    io_context io_ctx;
+
+    // Asynco(uint8_t threads = thread::hardware_concurrency());
+
+    void run(uint8_t threads = thread::hardware_concurrency());
+
+    void join();
+
+    /**
+     * Run the function asynchronously
+    */
+    template<class F, class... Args>
+    auto async(F&& f, Args&&... args) -> future<invoke_result_t<F, Args...>> {
+    cout << "async" << endl;
+
+        using return_type = invoke_result_t<F, Args...>;
+        future<return_type> res = io_ctx.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
+        return res;
+    }
 
 #if __cplusplus >= 202002L
-/**
- * Run the coroutine
-*/
-template <typename T>
-std::future<T> async_(boost::asio::awaitable<T> _coroutine) {
-    std::promise<T> promise;
-    auto future = promise.get_future();
+    /**
+     * Run the coroutine
+    */
+    template <typename T>
+    future<T> async(boost::asio::awaitable<T> _coroutine) {
+        promise<T> promise;
+        auto future = promise.get_future();
 
-    co_spawn(_asynco_engine.io_context, [_coroutine = std::move(_coroutine), promise = std::move(promise)]() mutable -> boost::asio::awaitable<void> {
-        try {
-            if constexpr (!std::is_void_v<T>) {
-                T result = co_await std::move(_coroutine);
-                promise.set_value(std::move(result));
-            } else {
-                co_await std::move(_coroutine);
-                promise.set_value(); // Za void ne postavljamo rezultat
+        co_spawn(io_ctx, [_coroutine = move(_coroutine), promise = move(promise)]() mutable -> boost::asio::awaitable<void> {
+            try {
+                if constexpr (!is_void_v<T>) {
+                    T result = co_await move(_coroutine);
+                    promise.set_value(move(result));
+                } else {
+                    co_await move(_coroutine);
+                    promise.set_value(); // Za void ne postavljamo rezultat
+                }
+            } catch (...) {
+                promise.set_exception(current_exception()); // Postavljamo izuzetak
             }
-        } catch (...) {
-            promise.set_exception(std::current_exception()); // Postavljamo izuzetak
-        }
-    }, boost::asio::detached);
+        }, boost::asio::detached);
 
-    return future;
-}
-
+        return future;
+    }
 #endif
 
-/**
- * Block until the multiple asynchronous call completes
- * Use only on no-void calls
- */
-
-template<typename... F>
-auto await_(F&&... f) -> std::tuple<typename std::decay<decltype(f.get())>::type...> {
-    return std::make_tuple(move(f).get()...);
-}
-
-/**
- * Block until the multiple asynchronous call completes
- * Use only on no-void calls
- */
-
-template<typename... F>
-auto await_(F&... f) -> std::tuple<typename std::decay<decltype(f.get())>::type...> {
-    return std::make_tuple(f.get()...);
-}
-
-/**
- * Block until the asynchronous call completes - dont block asynco engine loop
-*/
-template<typename T>
-T await_(future<T>& r, uint16_t time_us = 10) {
-    while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
-        _asynco_engine.io_context.poll_one();
+    /**
+     * Block until the asynchronous call completes - dont block asynco engine loop
+    */
+    template<typename T>
+    T await(future<T>& r, uint16_t time_us = 10) {
+        while (r.wait_for(std::chrono::microseconds(time_us)) != future_status::ready) {
+            io_ctx.poll_one();
+        }
+        return r.get(); 
     }
-    return r.get(); 
-}
 
-/**
- * Block until the asynchronous call completes - dont block asynco engine loop
-*/
-template<typename T>
-T await_(future<T>&& r, uint16_t time_us = 10) {
-    while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
-        _asynco_engine.io_context.poll_one();
+    /**
+     * Block until the asynchronous call completes - dont block asynco engine loop
+    */
+    template<typename T>
+    T await(future<T>&& r, uint16_t time_us = 10) {
+        while (r.wait_for(std::chrono::microseconds(time_us)) != future_status::ready) {
+            io_ctx.poll_one();
+        }
+        return move(r).get();
     }
-    return move(r).get();
-}
 
-/**
- * Run the function asynchronously an block until completes
-*/
-template<class F, class... Args>
-auto await_(F&& f, Args&&... args) -> typename result_of<F(Args...)>::type {
-    return await_(
-        async_(f, args...)
-    );
-}
-
+    /**
+     * Run the function asynchronously an block until completes
+    */
+    template<class F, class... Args>
+    auto await(F&& f, Args&&... args) -> invoke_result_t<F, Args...> {
+        return await(
+            async(f, args...)
+        );
+    }
 
 #if __cplusplus >= 202002L
-
-/**
- * Run the coruotine and wait
- */
-template <typename T>
-T await_(boost::asio::awaitable<T> _coroutine) {
-    return await_(
-        async_(
-            move(_coroutine)
-        ));
-}
-
+    /**
+     * Run the coruotine and wait
+     */
+    template <typename T>
+    T await(boost::asio::awaitable<T> _coroutine) {
+        return await(
+            async(
+                move(_coroutine)
+            ));
+    }
 #endif
+
+    /**
+     * Block until the multiple asynchronous call completes
+     * Use only on no-void calls
+     */
+
+    template<typename... F>
+    auto await(F&&... f) -> tuple<typename decay<decltype(await(f))>::type...> {
+        return make_tuple(move(f).get()...);
+    }
+
+    /**
+     * Block until the multiple asynchronous call completes
+     * Use only on no-void calls
+     */
+
+    template<typename... F>
+    auto await(F&... f) -> tuple<typename decay<decltype(await(f))>::type...> {
+        return make_tuple(await(f)...);
+    }
+
+    Timer delayed(function<void()> callback, uint64_t time) ;/*{
+        return Timer(io_ctx, callback, time, TimerType::Delayed);
+    }*/
+
+    Timer periodic(function<void()> callback, uint64_t time) ;/*{
+        return Timer(io_ctx, callback, time, TimerType::Periodic);
+    }*/
+
+    template<typename... T>
+    Trigger<T...> trigger() {
+        return Trigger<T...>(this);
+    }
+
+
+};
+
 
 }
 }
