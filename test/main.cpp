@@ -45,6 +45,25 @@ using namespace this_thread;
 //     return _promise.get_future().get();
 // }
 
+// void sleep_to (int _time) {
+//     promise<void> _promise;
+//     Delayed t( [&]() {
+//         _promise.set_value();
+//     }, _time);
+//     await_ (_promise.get_future(), 100);
+// }
+
+// future<void> sleep_to (int _time) {
+//     promise<void> _promise;
+//     future<void> _future = _promise.get_future();
+    
+//     Delayed t( [&]() {
+//         _promise.set_value();
+//     }, _time);
+
+//     return _future;
+// }
+
 // void promise_reject (int _time) {
 //     promise<void> _promise;
 //     Delayed t( [&]() {
@@ -71,14 +90,14 @@ using namespace this_thread;
 //     }
 // };
 
-// // ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
+// // // ------------------ EXTEND OWN CLASS WITH EVENTS -------------------
 
 // class myOwnClass : public Trigger<int> {
 //     public:
 //     myOwnClass() : Trigger() {};
 // };
 
-// ----------------- MULTIPLE TRIGGERS IN ONE CLASS ------------------
+// // ----------------- MULTIPLE TRIGGERS IN ONE CLASS ------------------
 
 // class ClassWithTriggers {
 //     Trigger<int> emitter1;
@@ -175,25 +194,6 @@ int main () {
     // } else {
     //     cout << "nije isteko " << endl;
     // }
-
-    // auto d = Delayed( [](){
-    //     cout << "Delayed" << endl;
-    // }, 2000);
-
-    // auto p = Periodic( [](){
-    //     cout << "Periodic" << endl;
-    // }, 700);
-
-    // Periodic( [&] (){
-    //     cout << "Delayed expire " << d->expired() << endl;
-    //     cout << "Periodic ticks " << p->ticks() << endl;
-    //     cout << "Delayed stoped " << d->stoped() << endl;
-    //     cout << "Periodic stoped " << p->stoped() << endl;
-    // }, 1000);
-
-    // Delayed( [&](){
-    //     p->stop();
-    // }, 10000);
 
     // // // // ------------------------ MAKE FUNCTIONS ASYNCHRONOUS -------------------------
 
@@ -460,7 +460,7 @@ int main () {
     // });
 
 
-    // // ----------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------
 
 
     // auto i = async_ ( []() -> asyncable<int> {
@@ -481,7 +481,7 @@ int main () {
     // }, 2000);
 
 
-    // Periodic b( []()  {
+    // Periodic b_( []()  {
     //     cout << "funckija" << endl;
     // }, 2000);
 
@@ -565,7 +565,7 @@ int main () {
     //     );
     // }, 2000);
 
-    // await_( async_co2 ( [c1 = move(c1)]() -> asyncable<void> {
+    // await_( async_ ( [c1 = move(c1)]() -> asyncable<void> {
     //     cout << "Baba roga" << endl;
     //     co_await c1();
     // }));
@@ -578,7 +578,32 @@ int main () {
 
     // evoid.tick("void");
 
-    cout << "-------------end main-------------" << endl;
+
+
+
+    // vector<future<void>> futures;
+
+    // for (int i=0; i<20; i++) {
+    //     futures.push_back(
+    //         async_([a = i](){
+    //             for (int i=0; i<1000; i++) {
+    //                 cout << a << " " << i << endl;
+    //                 // sleep_to(i);
+    //             }
+    //         })
+    //     );
+    // }
+
+    // for (int i=0; i<20; i++) {
+    //     await_(futures[i]);
+    //     // await_(futures[i]);
+    // }
+
+
+
+
+
+    cout << "-------------end main------------- " << rtime_ms() - start << endl;
     _asynco_engine.run();
     return 0;
 }

@@ -53,26 +53,10 @@ std::future<T> async_(boost::asio::awaitable<T> _coroutine) {
 #endif
 
 /**
- * Block until the asynchronous call completes
+ * Block until the asynchronous call completes - dont block asynco engine loop
 */
 template<typename T>
-T await_(future<T>& r) {
-    return r.get();
-}
-
-/**
- * Block until the asynchronous call completes
-*/
-template<typename T>
-T await_(future<T>&& r) {
-    return move(r).get();
-}
-
-/**
- * Block until the asynchronous call completes
-*/
-template<typename T>
-T await_(future<T>& r, uint32_t time_us = 10) {
+T await_(future<T>& r, uint16_t time_us = 10) {
     while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
         _asynco_engine.io_context.poll_one();
     }
@@ -80,10 +64,10 @@ T await_(future<T>& r, uint32_t time_us = 10) {
 }
 
 /**
- * Block until the asynchronous call completes
+ * Block until the asynchronous call completes - dont block asynco engine loop
 */
 template<typename T>
-T await_(future<T>&& r, uint32_t time_us = 10) {
+T await_(future<T>&& r, uint16_t time_us = 10) {
     while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
         _asynco_engine.io_context.poll_one();
     }
@@ -115,29 +99,6 @@ T await_(boost::asio::awaitable<T> _coroutine) {
 }
 
 #endif
-
-
-/**
- * Block until the asynchronous call completes or time expired
-*/
-// template<typename T>
-// T await_(future<T>& r, uint64_t time) {
-//     if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
-//         throw runtime_error("Asynchronous execution timed out");
-//     }
-//     return r.get();
-// }
-
-/**
- * Block until the asynchronous call completes or time expired
-*/
-// template<typename T>
-// T await_(future<T>&& r, uint64_t time) {
-//      if (r.wait_for(chrono::milliseconds(time)) == std::future_status::timeout) {
-//         throw runtime_error("Asynchronous execution timed out");
-//     } 
-//     return move(r).get();
-// }
 
 }
 }
