@@ -69,6 +69,28 @@ T await_(future<T>&& r) {
 }
 
 /**
+ * Block until the asynchronous call completes
+*/
+template<typename T>
+T await_(future<T>& r, uint32_t time_us = 10) {
+    while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
+        _asynco_engine.io_context.poll_one();
+    }
+    return r.get(); 
+}
+
+/**
+ * Block until the asynchronous call completes
+*/
+template<typename T>
+T await_(future<T>&& r, uint32_t time_us = 10) {
+    while (r.wait_for(std::chrono::microseconds(time_us)) != std::future_status::ready) {
+        _asynco_engine.io_context.poll_one();
+    }
+    return move(r).get();
+}
+
+/**
  * Run the function asynchronously an block until completes
 */
 template<class F, class... Args>

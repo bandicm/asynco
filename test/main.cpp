@@ -17,22 +17,22 @@ using namespace marcelb::asynco;
 using namespace std;
 using namespace this_thread;
 
-asyncable<int> c2 (int a)  {
-    co_return a*2;
-} 
+// asyncable<int> c2 (int a)  {
+//     co_return a*2;
+// } 
 
-asyncable<void> sleep_co (int a)  {
-    sleep(a);
-    cout << "Gotov" << endl;
-    co_return;
-} 
+// asyncable<void> sleep_co (int a)  {
+//     sleep(a);
+//     cout << "Gotov" << endl;
+//     co_return;
+// } 
 
 
-asyncable<void> c ()  {
-    cout << "Ispisi" << endl;
-    co_await c2(0);
-    co_return;
-} 
+// asyncable<void> c ()  {
+//     cout << "Ispisi" << endl;
+//     co_await c2(0);
+//     co_return;
+// } 
 
 
 
@@ -524,35 +524,35 @@ int main () {
     //     co_return;
     // }());
 
-    async_ ([]() -> asyncable<void> {
-        cout << "1" << endl;
-        co_await sleep_co(1);
-        co_return;
-    }());
+    // async_ ([]() -> asyncable<void> {
+    //     cout << "1" << endl;
+    //     co_await sleep_co(1);
+    //     co_return;
+    // }());
 
-    async_ ([]() -> asyncable<void> {
-        cout << "2" << endl;
-        co_await sleep_co(1);
-        co_return;
-    }());
+    // async_ ([]() -> asyncable<void> {
+    //     cout << "2" << endl;
+    //     co_await sleep_co(1);
+    //     co_return;
+    // }());
 
-    async_ ([]() -> asyncable<void> {
-        cout << "3" << endl;
-        co_await sleep_co(1);
-        co_return;
-    }());
+    // async_ ([]() -> asyncable<void> {
+    //     cout << "3" << endl;
+    //     co_await sleep_co(1);
+    //     co_return;
+    // }());
 
-    async_ ([]() -> asyncable<void> {
-        cout << "4" << endl;
-        co_await sleep_co(1);
-        co_return;
-    }());
+    // async_ ([]() -> asyncable<void> {
+    //     cout << "4" << endl;
+    //     co_await sleep_co(1);
+    //     co_return;
+    // }());
 
-    async_ ([]() -> asyncable<void> {
-        cout << "5" << endl;
-        co_await sleep_co(1);
-        co_return;
-    }());
+    // async_ ([]() -> asyncable<void> {
+    //     cout << "5" << endl;
+    //     co_await sleep_co(1);
+    //     co_return;
+    // }());
 
 
     // await_ ([]()  {
