@@ -34,7 +34,6 @@ Timer::Timer (io_context& _io_ctx, function<void()> _callback, uint64_t _time, T
     type(_type),
     callback(_callback),
     time(_time) {
-            cout << "Timer" << endl;
     init();
 }
 

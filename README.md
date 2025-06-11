@@ -13,14 +13,12 @@ The asynchronous filesystem was included solely to demonstrate how users can wra
 
 - Object oriented
 - Small and easy to integrate
-- Header only
 - Asynchronous programming
 - Multithread
 - Asynchronous timer functions: Periodic, Delayed (like setInterval and setTimeout from JS)
 - Typed events (on, tick, off) (like EventEmitter from JS: on, emit, etc)
 - Event loops
 - Multiple parallel execution loops
-- Asynchronous file IO
 - Based on ASIO (Boost Asio)
 - On C++20 support Boost.Asio coroutines
 ## Installation
@@ -28,37 +26,64 @@ The asynchronous filesystem was included solely to demonstrate how users can wra
 Just download the latest release and unzip it into your project. 
 
 ```c++
-#define NUM_OF_RUNNERS 8                // To change the number of threads used by asynco, without this it runs according to the number of cores
+// for default global runtime
 
-#include "asynco/lib/asynco.hpp"        // async_ (), await_()
-#include "asynco/lib/triggers.hpp"      // Trigger (event emitter)
-#include "asynco/lib/timers.hpp"        // Periodic, Delayed (like setInterval and setTimeout from JS)
-#include "asynco/lib/filesystem.hpp"    // for async read and write files
-#include "asynco/lib/define.hpp"        // async_, await_, asyncable_ defines
+#include "asynco/lib/asynco_default.hpp"
+
 
 using namespace marcelb;
 using namespace asynco;
 
-// At the end of the main function, always set
-Asynco_Default_Runtime.run();
-return 0;
+int main() {
+    asynco_default_run();
+
+    // code
+
+    asynco_default_join()
+    return 0;
+}
+
+// own instace of runtime
+
+#include "asynco/lib/asynco.hpp"
+
+using namespace marcelb;
+using namespace asynco;
+
+int main() {
+    Asynco asynco;
+    asynco.run(2);
+
+    // code
+
+    asynco.join();
+    return 0;
+}
 
 ```
 
 ## Usage
 
-In the following sections, we will explore timers, function execution via the runtime, asynchronous invocation, and waiting for results. We will cover essential use cases involving triggers, file handling, and coroutines.
+In the following sections, we will explore timers, function execution via the runtime, asynchronous invocation, and waiting for results. We will cover essential use cases involving triggers, and coroutines.
 
 ### Timers
 
-We have two timer classes, Periodic (which runs a callback function periodically), and Delayed (delayed runs a callback function only once).
+We have one timer classes, int two mode Periodic (which runs a callback function periodically), and Delayed (delayed runs a callback function only once).
 
 ```c++
 // start periodic
-Periodic inter1 ([]() {
+Timer inter1 = periodic ([]() {
      cout << "Interval 1" << endl;
 }, 1000);
 
+// or usint own instance runtime
+/**
+ *  Asynco asynco;
+ *  asynco.run(2);
+ *  Timer inter1 = asynco.periodic ([]() {
+ *       cout << "Interval 1" << endl;
+ *   }, 1000);
+*/
 // stop periodic
 inter1.stop();
 
@@ -69,7 +94,7 @@ int t = inter1.ticks();
 bool stoped = inter1.stoped();
 
 // start delayed
-Delayed time1 ( [] () {
+Timer time1 = delayed( [] () {
     cout << "Timeout 1 " << endl;
 }, 10000);
 
@@ -93,7 +118,7 @@ Running functions at runtime, asynchronous execution, uses the `async_` call and
 */
 
 async_ ( []() {
-    sleep_for(2s);   // only for simulating long duration function
+    sleep(2);   // only for simulating long duration function
     cout << "nonsync " << endl;
     return 5;
 });
@@ -126,12 +151,12 @@ async_ ( [&classes] () {
 });
 ```
 
-To wait for the result (blocking the flow) use `await_` (basically nothing more than a `.get()` call on a future object)
+To wait for the result (blocking the flow) use `await_` (This does not block the event loop in principle. If the result is not ready for a short time, it starts another job in place while it waits.)
 
 ```c++
 
 auto a = async_ ( []() {
-    sleep_for(2s);   // only for simulating long duration function
+    sleep(2);   // only for simulating long duration function
     cout << "nonsync " << endl;
     return 5;
 });
@@ -143,7 +168,7 @@ cout << await_(a) << endl;
 */
 
 cout << await_(async_ ( [] () {
-    sleep_for(chrono::seconds(1)); // only for simulating long duration function
+    sleep(1); // only for simulating long duration function
     cout << "await_ end" << endl;
     return 4;
 })) << endl;
@@ -159,104 +184,7 @@ await_ ([]()  {
 });
 
 ```
-If multiple function calls do not depend on each other, you can call them and wait for the results later, better concurrency.
-
-```c++
-
-auto a = async_ ( []() {
-    cout << "A" << endl;
-    return 3;
-});
-
-auto b = async_ ( []() {
-    cout << "B" << endl;
-    throw runtime_error("Test exception");
-    return;
-});
-
-auto c = async_ ( []() {
-    cout << "C" << endl;
-    return "Hello";
-});
-
-int a_;
-string c_;
-
-auto await_all = [&] () {
-    a_ = await_(a);
-    await_(b);
-    c_ = await_(c);
-};
-
-try {
-    await_all();
-    cout << "a_ " << a_ << " c_ " << c_ << endl;
-} catch (const exception& exc) {
-    cout << exc.what() << endl;
-}
-
-// //  same type 
-
-vector<future<void>> fut_vec;
-for (int i=0; i<5; i++) {
-    fut_vec.push_back(
-        async_ ( [i]() {
-            cout << "Async_ " << i << endl;
-        })
-    );
-}
-
-auto await_all = [&] () {
-    for (int i=0; i<fut_vec.size(); i++) {
-        await_ (fut_vec[i]);
-    }
-};
-
-```
-Just an example:
-
-```c++
-
-/**
- * Sleep with delayed sleep implement
- **/ 
-
-void sleep_to (int _time) {
-    promise<void> _promise;
-    Delayed t( [&]() {
-        _promise.set_value();
-    }, _time);
-
-    return _promise.get_future().get();
-}
-
-sleep_to(3000);
-
-/**
-* Catch promise reject
-*/
-
-void promise_reject (int _time) {
-    promise<void> _promise;
-    Delayed t( [&]() {
-        try {
-            // simulate except
-            throw runtime_error("Error simulation");
-            _promise.set_value();
-        } catch (...) {
-            _promise.set_exception(current_exception());
-        }
-    }, _time);
-
-    return _promise.get_future().get();
-}
-
-try {
-    promise_reject(3000);
-} catch (runtime_error err) {
-    cout<< err.what() << endl;
-}
-```
+Here too you can use your own runtime instance, only the methods are `.async()` and `.await()`
 
 ### Triggers
 
@@ -267,9 +195,9 @@ The library implements Triggers, which are basically typed Events.
 * initialization of typed events
 */
 
-Trigger<int, int> ev2int;
-Trigger<int, string> evintString;
-Trigger<> evoid;
+Trigger<int, int> ev2int = trigger<int, int>();
+Trigger<int, string> evintString = trigger<int, string>();
+Trigger<> evoid = trigger<>();
 
 ev2int.on("sum", [](int a, int b) {
     cout << "Sum " << a+b << endl;
@@ -316,7 +244,7 @@ Extend own class whit events
 ```c++
 class myOwnClass : public Trigger<int> {
     public:
-    myOwnClass() : Trigger() {};
+    myOwnClass() : Trigger(asynco_default_runtime()) {};
 };
 
 myOwnClass myclass;
@@ -340,6 +268,8 @@ class ClassWithTriggers {
     Trigger<string> emitter2;
 
 public:
+    ClassWithTriggers(): emitter1(asynco_default_runtime()), emitter2(asynco_default_runtime()) {}
+
     template<typename... T>
     void on(const string& key, function<void(T...)> callback) {
         if constexpr (sizeof...(T) == 1 && is_same_v<tuple_element_t<0, tuple<T...>>, int>) {
@@ -376,48 +306,6 @@ mt.on<string>("string", function<void(string)>([&](string s) {
 
 mt.tick("int", 5);
 mt.tick("string", string("Hello world"));
-
-```
-
-Another example:
-Asynchronous file IO
-
-```c++
-string data_;
-
-fs::read("test.txt", [&data_] (string data, exception* error) {
-    if (error) {
-        cout << "Error " << error->what() << endl;
-    } else {
-        cout << "Data " << endl << data << endl;
-        data_ = data;
-        cout << "Data_" << data_ << endl;
-    }
-});
-
-fs::write("test1.txt", "Hello world", [] (exception* error) {
-    if (error) {
-        cout << "Error " << error->what() << endl;
-    } else {
-        cout << "Write successfuly" << endl;
-    }
-});
-
-auto future_data = fs::read("test.txt");
-
-try {
-    string data = await_(future_data);
-} catch (exception& err) {
-    cout << err.what() << endl;
-}
-
-auto future_status = fs::write("test.txt", "Hello world");
-
-try {
-    await_(future_status);
-} catch (exception& err) {
-    cout << err.what() << endl;
-}
 
 ```
 
@@ -473,17 +361,8 @@ await_ ([]() -> asyncable<void> {
 
 ```
 
-Timers and triggers work the same with coroutines; it is important to call the coroutine with `async_` in the callback, and to call `async_`, wrap it with a lambda expression:
-
-```c++
-
-Periodic p([]() {
-    async_(c2(34));
-}, 2000);
-
-```
 If you need a result, you can also retrieve it with `await_`.
-
+Here too you can use your own runtime instance, only the methods are `.async()` and `.await()`
 
 ## License
 

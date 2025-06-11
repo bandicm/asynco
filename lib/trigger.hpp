@@ -25,10 +25,9 @@ class Trigger {
     mutex m_eve;
     unordered_map<string, vector<function<void(T...)>>> triggers;
 
-    Trigger(Asynco& _engine)
-        : engine(_engine) {}
-
     public:
+    Trigger(Asynco& _engine)
+    : engine(_engine) {}
 
     /**
      * Defines event by key, and callback function

@@ -9,10 +9,7 @@ int main() {
     Asynco asynco;
     asynco.run(2);
 
-    auto interval = asynco.periodic([](){
-        cout << "idemo" << endl;
-    }, 1000);
-
+    // code
 
     asynco.join();
     return 0;

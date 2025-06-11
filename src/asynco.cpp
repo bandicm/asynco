@@ -5,23 +5,23 @@ namespace marcelb::asynco {
 
 void Asynco::init_loops_in_threads(uint8_t threads) {
     for (int i=0; i<threads; i++) {
-        cout << "loops init " << endl;
-
         _runners.push_back(thread ( [this] () {
             io_ctx.run();
         }));
     }
 }
 
-// Asynco::Asynco(uint8_t threads){//:
-//     // _work(io_service::work(io_ctx)) {
-//     run(threads);
-// }
-
 void Asynco::run(uint8_t threads) {
     _work = make_unique<io_service::work>(io_ctx);
-    cout << "Asynco" << endl;
     init_loops_in_threads(threads);
+}
+
+void Asynco::run_on_this() {
+    if (!_work) {
+        cout << "POKRENE SE KREIRANJE WORK PTR";
+        _work = make_unique<io_service::work>(io_ctx);
+    }
+    io_ctx.run();
 }
 
 void Asynco::join() {

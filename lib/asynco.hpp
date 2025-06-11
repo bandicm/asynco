@@ -11,16 +11,15 @@
 using namespace std;
 
 #include <boost/asio.hpp>
-using namespace boost::asio;
-
-#include "timers.hpp"
-#include "trigger.hpp"
-
 #if __cplusplus >= 202002L
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #endif
+using namespace boost::asio;
+
+#include "timers.hpp"
+#include "trigger.hpp"
 
 namespace marcelb {
 namespace asynco {
@@ -37,9 +36,9 @@ class Asynco {
 public:
     io_context io_ctx;
 
-    // Asynco(uint8_t threads = thread::hardware_concurrency());
-
     void run(uint8_t threads = thread::hardware_concurrency());
+
+    void run_on_this();
 
     void join();
 
@@ -48,8 +47,6 @@ public:
     */
     template<class F, class... Args>
     auto async(F&& f, Args&&... args) -> future<invoke_result_t<F, Args...>> {
-    cout << "async" << endl;
-
         using return_type = invoke_result_t<F, Args...>;
         future<return_type> res = io_ctx.post(boost::asio::use_future(bind(forward<F>(f), forward<Args>(args)...)));
         return res;
@@ -157,7 +154,7 @@ public:
 
     template<typename... T>
     Trigger<T...> trigger() {
-        return Trigger<T...>(this);
+        return Trigger<T...>(*this);
     }
 
 

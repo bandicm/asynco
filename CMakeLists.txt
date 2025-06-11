@@ -25,6 +25,9 @@ target_link_libraries(asynco Boost::system)
 # Dodaj testove
 add_subdirectory(test)
 
+add_compile_options(-w)
+
+
 
 # Instaliraj biblioteku
 # install(TARGETS asynco DESTINATION lib)

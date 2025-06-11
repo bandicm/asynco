@@ -5,18 +5,10 @@ using namespace marcelb::asynco;
 using namespace std;
 
 int main() {
-    Asynco_Default_Runtime.run();
-    cout << "main" << endl;
+    asynco_default_run();
 
-    async_([](){
-        cout << "idemo" << endl;
-    });
+    // code
 
-    auto interval = periodic([&](){
-        cout << "idemo" << endl;
-    }, 1000);
-
-    
-    Asynco_Default_Runtime.join();
+    asynco_default_join();
     return 0;
 }

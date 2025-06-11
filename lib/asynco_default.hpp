@@ -8,15 +8,12 @@ namespace asynco {
 
 
 extern Asynco Asynco_Default_Runtime;
-// Asynco& Asynco_Default_Runtime();
 
 /**
  * Run the function asynchronously
 */
 template<class F, class... Args>
 auto async_(F&& f, Args&&... args) -> future<invoke_result_t<F, Args...>> {
-    cout << "async_default" << endl;
-
     return Asynco_Default_Runtime.async(bind(forward<F>(f), forward<Args>(args)...));
 }
 
@@ -103,6 +100,18 @@ Trigger<T...> trigger() {
 #if __cplusplus >= 202002L
 #define asyncable boost::asio::awaitable
 #endif
+
+Asynco& asynco_default_runtime();
+
+void asynco_default_run();
+
+void asynco_default_run_on_this();
+
+void asynco_default_join();
+
+io_context& asynco_default_io_context();
+
+
 
 }
 }
