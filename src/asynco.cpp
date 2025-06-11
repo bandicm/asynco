@@ -18,7 +18,6 @@ void Asynco::run(uint8_t threads) {
 
 void Asynco::run_on_this() {
     if (!_work) {
-        cout << "POKRENE SE KREIRANJE WORK PTR";
         _work = make_unique<io_service::work>(io_ctx);
     }
     io_ctx.run();

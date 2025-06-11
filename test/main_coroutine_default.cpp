@@ -4,16 +4,17 @@ using namespace marcelb::asynco;
 #include <iostream>
 using namespace std;
 
+awaitable<int> c2(int a) {
+    co_return a * 2;
+}
+
 int main() {
     asynco_default_run();
 
-    asyncable<int> c2(int a) {
-        co_return a * 2;
-    }
 
     async_(c2(4));
 
-    async_([]() -> asyncable<void> {
+    async_([]() -> awaitable<void> {
         std::cout << "Hello" << std::endl;
         co_await c2(4);
         co_return;
@@ -29,7 +30,7 @@ int main() {
     auto a =  await_ ( c2(3));
     cout << a << endl;
 
-    await_ ([]() -> asyncable<void> {
+    await_ ([]() -> awaitable<void> {
         cout << "Hello" << endl;
         co_return;
     }());

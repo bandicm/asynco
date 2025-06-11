@@ -13,7 +13,7 @@ int main() {
     }, 1000);
 
     // stop periodic
-    inter1.stop();
+    // inter1.stop();
 
     // how many times it has expired
     int ti = inter1.ticks();
@@ -27,7 +27,7 @@ int main() {
     }, 10000);
 
     // stop delayed
-    time1.stop();
+    // time1.stop();
 
     // is it expired
     int tt = time1.expired();

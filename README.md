@@ -311,11 +311,11 @@ mt.tick("string", string("Hello world"));
 
 ## Coroutine
 
-If `define.hpp` is included, you can initialize coroutines using `asyncable<T>`; if not, just use `boost::asio::awaitable<T>`.
+If `define.hpp` is included, you can initialize coroutines with `boost::asio::awaitable<T>`.
 
 ```c++
 
-asyncable<int> c2(int a) {
+awaitable<int> c2(int a) {
     co_return a * 2;
 }
 
@@ -330,7 +330,7 @@ Or using a lambda expression:
 
 ```c++
 
-async_([]() -> asyncable<void> {
+async_([]() -> awaitable<void> {
     std::cout << "Hello" << std::endl;
     co_await c2(4);
     co_return;
@@ -354,7 +354,7 @@ If you need the result immediately, you can use a shorter notation
 auto a =  await_ ( c2(3));
 cout << a << endl;
 
-await_ ([]() -> asyncable<void> {
+await_ ([]() -> awaitable<void> {
     cout << "Hello" << endl;
     co_return;
 }());
