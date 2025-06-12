@@ -77,6 +77,7 @@ class Timer {
      * The logic status of the timer stop state
     */
     bool stoped();
+    
     /**
      * The destructor stops the timer
     */

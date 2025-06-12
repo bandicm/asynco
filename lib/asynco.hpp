@@ -26,6 +26,8 @@ namespace asynco {
 
 /**
  *  Asynco runtime 
+ *  Used for all asynchronous capabilities of this wrapper
+ *  Initializes threads and boost::asio::io_context
 */
 class Asynco {
     vector<thread> _runners;
@@ -36,14 +38,26 @@ class Asynco {
 public:
     io_context io_ctx;
 
+    /**
+     * It starts the thread initialization and the Boost::Asio event loop in each of them
+     */
+
     void run(uint8_t threads = thread::hardware_concurrency());
 
+    /**
+     * Starts Boost::Asio event loop in the current thread
+     */
+    
     void run_on_this();
+
+    /**
+     * Waits until all threads have finished working
+     */
 
     void join();
 
     /**
-     * Run the function asynchronously
+     * Run the function asynchronously in runtime
     */
     template<class F, class... Args>
     auto async(F&& f, Args&&... args) -> future<invoke_result_t<F, Args...>> {
@@ -54,7 +68,7 @@ public:
 
 #if __cplusplus >= 202002L
     /**
-     * Run the coroutine
+     * Run the coroutine in runtime
     */
     template <typename T>
     future<T> async(boost::asio::awaitable<T> _coroutine) {
@@ -80,7 +94,7 @@ public:
 #endif
 
     /**
-     * Block until the asynchronous call completes - dont block asynco engine loop
+     * Wait until the asynchronous call completes
     */
     template<typename T>
     T await(future<T>& r, uint16_t time_us = 10) {
@@ -91,7 +105,7 @@ public:
     }
 
     /**
-     * Block until the asynchronous call completes - dont block asynco engine loop
+     * Wait until the asynchronous call completes
     */
     template<typename T>
     T await(future<T>&& r, uint16_t time_us = 10) {
@@ -102,7 +116,7 @@ public:
     }
 
     /**
-     * Run the function asynchronously an block until completes
+     * Run the function asynchronously an wait until completes
     */
     template<class F, class... Args>
     auto await(F&& f, Args&&... args) -> invoke_result_t<F, Args...> {
@@ -125,17 +139,17 @@ public:
 #endif
 
     /**
-     * Block until the multiple asynchronous call completes
+     * Wait until the multiple asynchronous call completes
      * Use only on no-void calls
      */
 
     template<typename... F>
     auto await(F&&... f) -> tuple<typename decay<decltype(await(f))>::type...> {
-        return make_tuple(move(f).get()...);
+        return make_tuple(await(f)...);
     }
 
     /**
-     * Block until the multiple asynchronous call completes
+     * Wait until the multiple asynchronous call completes
      * Use only on no-void calls
      */
 
@@ -144,13 +158,21 @@ public:
         return make_tuple(await(f)...);
     }
 
-    Timer delayed(function<void()> callback, uint64_t time) ;/*{
-        return Timer(io_ctx, callback, time, TimerType::Delayed);
-    }*/
+    /**
+     * Initialize the delayed timer
+     */
 
-    Timer periodic(function<void()> callback, uint64_t time) ;/*{
-        return Timer(io_ctx, callback, time, TimerType::Periodic);
-    }*/
+    Timer delayed(function<void()> callback, uint64_t time);
+
+    /**
+     * Initialize the periodic timer
+     */
+
+    Timer periodic(function<void()> callback, uint64_t time);
+
+    /**
+     * Initialize trigger (typed event)
+     */
 
     template<typename... T>
     Trigger<T...> trigger() {
