@@ -26,6 +26,12 @@ using namespace boost::asio;
 namespace marcelb {
 namespace asynco {
 
+
+struct SleepHandle {
+    std::future<void> future;
+    std::shared_ptr<Timer> timer;
+};
+
 /**
  *  Asynco runtime 
  *  Used for all asynchronous capabilities of this wrapper
@@ -177,6 +183,9 @@ public:
      */
 
     void sleep(int _time);
+    
+    SleepHandle sleep2(int _time);
+
 
     /**
      * Initialize trigger (typed event)

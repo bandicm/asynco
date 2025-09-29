@@ -12,7 +12,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 1" << endl;
-            sleep(1000);
+            await_(sleep2(1000).future);
         }
     });
 
@@ -20,7 +20,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 2" << endl;
-            sleep(2000);
+            await_(sleep2(2000).future);
         }
     });
 
@@ -28,7 +28,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 25" << endl;
-            sleep(2500);
+            await_(sleep2(2500).future);
         }
     });
 
@@ -36,7 +36,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 3" << endl;
-            sleep(3000);
+            await_(sleep2(3000).future);
         }
     });
 
@@ -44,7 +44,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 35" << endl;
-            sleep(3500);
+            await_(sleep2(3500).future);
         }
     });
 
@@ -52,7 +52,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 4" << endl;
-            sleep(4000);
+            await_(sleep2(4000).future);
         }
     });
 
@@ -60,7 +60,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 45" << endl;
-            sleep(4500);
+            await_(sleep2(4500).future);
         }
     });
 
@@ -68,7 +68,7 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 5" << endl;
-            sleep(5000);
+            await_(sleep2(5000).future);
         }
     });
 
@@ -76,34 +76,34 @@ int main() {
     async_ ([](){
         loop {
             cout << "Loop 55" << endl;
-            sleep(5500);
+            await_(sleep2(5500).future);
         }
     });
 
     async_ ([](){
         loop {
             cout << "Loop 6" << endl;
-            sleep(6000);
+            await_(sleep2(6000).future);
         }
     });
 
     async_ ([](){
         loop {
             cout << "Loop 65" << endl;
-            sleep(6500);
+            await_(sleep2(6500).future);
         }
     });
 
     async_ ([](){
         loop {
             cout << "Loop 7" << endl;
-            sleep(7000);
+            await_(sleep2(7000).future);
         }
     });
 
     loop {  // blokira trenutnu
         cout << "Loop 15" << endl;
-        sleep(1500);
+        sleep2(1500).future.get();
     }
 
     asynco_default_join();

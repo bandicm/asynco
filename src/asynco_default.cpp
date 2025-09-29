@@ -17,6 +17,11 @@ void sleep(int _time) {
     return Asynco_Default_Runtime.sleep(_time);
 }
 
+SleepHandle sleep2(int _time) {
+    return Asynco_Default_Runtime.sleep2(_time);
+}
+
+
 Asynco& asynco_default_runtime() {
     return Asynco_Default_Runtime;
 }

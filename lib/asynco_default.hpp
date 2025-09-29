@@ -102,6 +102,7 @@ Timer periodic(function<void()> callback, uint64_t time);
  */
 
 void sleep(int _time);
+SleepHandle sleep2(int _time);
 
 /**
  * Initialize trigger (typed event)
