@@ -27,3 +27,9 @@ target_link_libraries(asynco_coroutine_default asynco Boost::system)
 
 add_executable(asynco_coroutine main_coroutine.cpp)
 target_link_libraries(asynco_coroutine asynco Boost::system)
+
+add_executable(asynco_infinit_loop_default main_infinit_loop_default.cpp)
+target_link_libraries(asynco_infinit_loop_default asynco Boost::system)
+
+add_executable(asynco_infinit_loop main_infinit_loop.cpp)
+target_link_libraries(asynco_infinit_loop asynco Boost::system)

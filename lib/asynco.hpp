@@ -18,6 +18,8 @@ using namespace std;
 #endif
 using namespace boost::asio;
 
+#define loop while(true)
+
 #include "timers.hpp"
 #include "trigger.hpp"
 
@@ -169,6 +171,12 @@ public:
      */
 
     Timer periodic(function<void()> callback, uint64_t time);
+
+    /**
+     * Nonblock time sleep function
+     */
+
+    void sleep(int _time);
 
     /**
      * Initialize trigger (typed event)

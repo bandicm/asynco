@@ -13,12 +13,20 @@ Timer periodic(function<void()> callback, uint64_t time) {
     return Timer(Asynco_Default_Runtime.io_ctx, callback, time, TimerType::Periodic);
 }
 
+void sleep(int _time) {
+    return Asynco_Default_Runtime.sleep(_time);
+}
+
 Asynco& asynco_default_runtime() {
     return Asynco_Default_Runtime;
 }
 
 void asynco_default_run() {
+#ifdef ASYNCO_THREADS_POOL_SIZE
+    Asynco_Default_Runtime.run(ASYNCO_THREADS_POOL_SIZE);
+#else
     Asynco_Default_Runtime.run();
+#endif
 }
 
 void asynco_default_run_on_this() {

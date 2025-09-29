@@ -27,6 +27,7 @@ add_subdirectory(test)
 
 add_compile_options(-w)
 
+# add_definitions(-DASYNCO_THREADS_POOL_SIZE=20)
 
 
 # Instaliraj biblioteku

@@ -11,8 +11,15 @@ void notLambdaFunction() {
 
 class clm {
     public:
+    int i = 7;
     void classMethode() {
-        cout << "Call class method" << endl;
+        cout << "Call class method" << i << endl;
+    }
+
+    future<void> asyncMethode() {
+        return async_([&]() {
+            cout << "Async class method" << i << endl;
+        });
     }
 };
 
@@ -52,6 +59,8 @@ int main() {
     async_ ( [&classes] () {
         classes.classMethode();
     });
+
+    await_(classes.asyncMethode());
 
     //------------------AWAIT----------------------
 

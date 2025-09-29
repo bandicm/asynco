@@ -37,5 +37,13 @@ Timer Asynco::periodic(function<void()> callback, uint64_t time) {
     return Timer(io_ctx, callback, time, TimerType::Periodic);
 }
 
+void Asynco::sleep(int _time) {
+    promise<void> _promise;
+    Timer t = delayed( [&]() {
+        _promise.set_value();
+    }, _time);
+
+    return await(_promise.get_future());
+}
 
 };
