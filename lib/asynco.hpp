@@ -26,11 +26,7 @@ using namespace boost::asio;
 namespace marcelb {
 namespace asynco {
 
-
-struct SleepHandle {
-    std::future<void> future;
-    std::shared_ptr<Timer> timer;
-};
+class Sleep;
 
 /**
  *  Asynco runtime 
@@ -106,10 +102,14 @@ public:
     */
     template<typename T>
     T await(future<T>& r, uint16_t time_us = 10) {
-        while (r.wait_for(std::chrono::microseconds(time_us)) != future_status::ready) {
-            io_ctx.poll_one();
+        while (true) {
+            if (r.wait_for(std::chrono::microseconds(0)) == std::future_status::ready) {
+                return r.get();
+            }
+            if (io_ctx.poll_one() == 0) {
+                std::this_thread::sleep_for(std::chrono::microseconds(time_us));
+            }
         }
-        return r.get(); 
     }
 
     /**
@@ -117,10 +117,14 @@ public:
     */
     template<typename T>
     T await(future<T>&& r, uint16_t time_us = 10) {
-        while (r.wait_for(std::chrono::microseconds(time_us)) != future_status::ready) {
-            io_ctx.poll_one();
+        while (true) {
+            if (r.wait_for(std::chrono::microseconds(0)) == std::future_status::ready) {
+                return std::move(r).get();
+            }
+            if (io_ctx.poll_one() == 0) {
+                std::this_thread::sleep_for(std::chrono::microseconds(time_us));
+            }
         }
-        return move(r).get();
     }
 
     /**
@@ -178,14 +182,7 @@ public:
 
     Timer periodic(function<void()> callback, uint64_t time);
 
-    /**
-     * Nonblock time sleep function
-     */
-
-    void sleep(int _time);
-    
-    SleepHandle sleep2(int _time);
-
+    Sleep sleep(uint64_t time);
 
     /**
      * Initialize trigger (typed event)
@@ -199,6 +196,26 @@ public:
 
 };
 
+
+class Sleep {
+    Asynco &runtime;
+    std::promise<void> promise;
+    std::future<void> future;
+    std::shared_ptr<Timer> timer;
+
+    public:
+
+    Sleep(uint64_t _time, Asynco &runtime);
+
+
+// #ifdef _ASYNCO_DEFAULT_
+//     Sleep(uint64_t _time);
+// #endif
+
+
+    void await();
+
+};
 
 }
 }

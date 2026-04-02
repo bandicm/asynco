@@ -13,14 +13,9 @@ Timer periodic(function<void()> callback, uint64_t time) {
     return Timer(Asynco_Default_Runtime.io_ctx, callback, time, TimerType::Periodic);
 }
 
-void sleep(int _time) {
-    return Asynco_Default_Runtime.sleep(_time);
+Sleep sleep(uint64_t time) {
+    return Sleep(time, Asynco_Default_Runtime);
 }
-
-SleepHandle sleep2(int _time) {
-    return Asynco_Default_Runtime.sleep2(_time);
-}
-
 
 Asynco& asynco_default_runtime() {
     return Asynco_Default_Runtime;

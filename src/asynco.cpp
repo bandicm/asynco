@@ -37,23 +37,39 @@ Timer Asynco::periodic(function<void()> callback, uint64_t time) {
     return Timer(io_ctx, callback, time, TimerType::Periodic);
 }
 
-void Asynco::sleep(int _time) {
-    promise<void> _promise;
-    Timer t = delayed( [&]() {
-        _promise.set_value();
-    }, _time);
 
-    return await(_promise.get_future());
+Sleep Asynco::sleep(uint64_t time) {
+    return Sleep(time, *this);
 }
 
-SleepHandle Asynco::sleep2(int _time) {
-    auto _promise = std::make_shared<std::promise<void>>();
+// Sleep
 
-    auto _timer = std::make_shared<Timer>(io_ctx, [_promise]() {
-        _promise->set_value();
+Sleep::Sleep(uint64_t _time, Asynco &runtime): runtime(runtime) {
+    future = promise.get_future();
+
+    timer = std::make_shared<Timer>(runtime.io_ctx, [this](){
+        this->promise.set_value();
     }, _time, TimerType::Delayed);
+}
 
-    return { _promise->get_future(), _timer };
+
+// #ifdef _ASYNCO_DEFAULT_
+// Sleep::Sleep(uint64_t _time): runtime(asynco_default_runtime()) {
+//     future = promise.get_future();
+
+//     timer = std::make_shared<Timer>(runtime.io_ctx, [this](){
+//         this->promise.set_value();
+//     }, _time, TimerType::Delayed);
+// }
+// #endif
+
+
+void Sleep::await() {
+#ifdef _ASYNCO_DEFAULT_
+    await_(future);
+#else
+    runtime.await(future);
+#endif
 }
 
 };

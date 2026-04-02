@@ -9,6 +9,16 @@ int main() {
     Asynco asynco;
     asynco.run(4);
 
+    asynco.async ([&](){
+        loop {
+            cout << "Loop 1" << endl;
+            // auto timer = Sleep3(1000, asynco);
+            // timer.await();
+            // Sleep(1000, asynco).await();
+            asynco.sleep(1000).await();
+        }
+    });
+
     // asynco.async ([&](){
     //     loop {
     //         cout << "Loop 1" << endl;

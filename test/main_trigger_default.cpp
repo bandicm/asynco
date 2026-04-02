@@ -42,76 +42,76 @@ int main() {
     * initialization of typed events
     */
 
-    Trigger<int, int> ev2int = trigger<int, int>();
-    Trigger<int, string> evintString = trigger<int, string>();
-    Trigger<> evoid = trigger<>();
+    // Trigger<int, int> ev2int = trigger<int, int>();
+    // Trigger<int, string> evintString = trigger<int, string>();
+    // Trigger<> evoid = trigger<>();
 
-    ev2int.on("sum", [](int a, int b) {
-        cout << "Sum " << a+b << endl;
-    });
+    // ev2int.on("sum", [](int a, int b) {
+    //     cout << "Sum " << a+b << endl;
+    // });
 
-    evintString.on("substract", [](int a, string b) {
-        cout << "Substract " << a-stoi(b) << endl;
-    });
+    // evintString.on("substract", [](int a, string b) {
+    //     cout << "Substract " << a-stoi(b) << endl;
+    // });
 
-    evoid.on("void", []() {
-        cout << "Void emited" << endl;
-    });
+    // evoid.on("void", []() {
+    //     cout << "Void emited" << endl;
+    // });
 
-    // multiple listeners
+    // // multiple listeners
 
-    string emited2 = "2";
+    // string emited2 = "2";
 
-    evoid.on("void", [&]() {
-        cout << "Void emited " << emited2 << endl;
-    });
+    // evoid.on("void", [&]() {
+    //     cout << "Void emited " << emited2 << endl;
+    // });
 
-    sleep(1);
+    // sleep(1);
 
-    /**
-    * Emit
-    */
+    // /**
+    // * Emit
+    // */
 
-    ev2int.tick("sum", 5, 8);
+    // ev2int.tick("sum", 5, 8);
 
-    sleep(1);
-    evintString.tick("substract", 3, to_string(2));
+    // sleep(1);
+    // evintString.tick("substract", 3, to_string(2));
 
-    sleep(1);
-    evoid.tick("void");
+    // sleep(1);
+    // evoid.tick("void");
 
     // Turn off the event listener
 
-    evoid.off("void");
-    evoid.tick("void"); // nothing is happening
+    // evoid.off("void");
+    // evoid.tick("void"); // nothing is happening
 
-    class myOwnClass : public Trigger<int> {
-        public:
-        myOwnClass() : Trigger(asynco_default_runtime()) {};
-    };
+    // class myOwnClass : public Trigger<int> {
+    //     public:
+    //     myOwnClass() : Trigger(asynco_default_runtime()) {};
+    // };
 
-    myOwnClass myclass;
+    // myOwnClass myclass;
 
-    Timer t = delayed( [&] {
-        myclass.tick("constructed", 1);
-    }, 200);
+    // Timer t = delayed( [&] {
+    //     myclass.tick("constructed", 1);
+    // }, 200);
 
-    myclass.on("constructed", [] (int i) {
-        cout << "Constructed " << i  << endl;
-    });
+    // myclass.on("constructed", [] (int i) {
+    //     cout << "Constructed " << i  << endl;
+    // });
 
-    ClassWithTriggers mt;
+    // ClassWithTriggers mt;
 
-    mt.on<int>("int", function<void(int)>([&](int i) {
-        cout << "Emit int " << i << endl;
-    }));
+    // mt.on<int>("int", function<void(int)>([&](int i) {
+    //     cout << "Emit int " << i << endl;
+    // }));
 
-    mt.on<string>("string", function<void(string)>([&](string s) {
-        cout << "Emit string " << s << endl;
-    }));
+    // mt.on<string>("string", function<void(string)>([&](string s) {
+    //     cout << "Emit string " << s << endl;
+    // }));
 
-    mt.tick("int", 5);
-    mt.tick("string", string("Hello world"));
+    // mt.tick("int", 5);
+    // mt.tick("string", string("Hello world"));
 
     asynco_default_join();
     return 0;

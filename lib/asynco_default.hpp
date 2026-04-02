@@ -97,12 +97,7 @@ Timer delayed(function<void()> callback, uint64_t time);
 
 Timer periodic(function<void()> callback, uint64_t time);
 
-/**
- * Nonblock time sleep function
- */
-
-void sleep(int _time);
-SleepHandle sleep2(int _time);
+Sleep sleep(uint64_t time);
 
 /**
  * Initialize trigger (typed event)
